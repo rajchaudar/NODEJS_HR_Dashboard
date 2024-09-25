@@ -1,0 +1,61 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{viewTitle}}</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+  </head>
+  <body>
+    <div class="container mt-5">
+      <h2>{{viewTitle}}</h2>
+      
+      <!-- Conditional form action for both create and update -->
+      <form action="/employee{{#if employee._id}}/update/{{employee._id}}{{/if}}" method="POST">
+        <div class="form-group">
+          <label for="fullName">Full Name</label>
+          <input
+            type="text"
+            class="form-control"
+            name="fullName"
+            value="{{employee.fullName}}"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input
+            type="email"
+            class="form-control"
+            name="email"
+            value="{{employee.email}}"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="mobile">Mobile</label>
+          <input
+            type="text"
+            class="form-control"
+            name="mobile"
+            value="{{employee.mobile}}"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="city">City</label>
+          <input
+            type="text"
+            class="form-control"
+            name="city"
+            value="{{employee.city}}"
+            required
+          />
+        </div>
+        <button type="submit" class="btn btn-primary">{{#if employee._id}}Update{{else}}Create{{/if}}</button>
+      </form>
+    </div>
+  </body>
+</html>
