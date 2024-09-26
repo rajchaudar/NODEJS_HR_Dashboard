@@ -6,7 +6,7 @@ const path = require('path'); // Import path
 const Employee = require('./models/employee.model'); // Adjust path based on your structure
 
 const app = express();
-const PORT = 3000;
+const PORT = 3001;
 
 // Set Handlebars as the view engine
 app.set('view engine', 'hbs');
