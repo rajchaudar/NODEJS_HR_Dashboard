@@ -30,7 +30,7 @@ mongoose.connect('mongodb://localhost:27017/EmployeeDB', {
 
 // Root route
 app.get('/', (req, res) => {
-    res.redirect('/employee/list'); // Redirect to the employee list page
+    res.render('index'); // Redirect to the employee list page
 });
 
 // Route to handle form submission
@@ -57,6 +57,45 @@ app.post('/employee', (req, res) => {
             });
         }
     });
+});
+
+// Route to display employee list with filtering/searching functionality
+app.get('/', async (req, res) => {
+    const { filterBy, search } = req.query;
+
+    let filterCriteria = {};
+
+    if (search && filterBy) {
+        switch (filterBy) {
+            case 'name':
+                filterCriteria = { fullName: { $regex: new RegExp(search, 'i') } };
+                break;
+            case 'email':
+                filterCriteria = { email: { $regex: new RegExp(search, 'i') } };
+                break;
+            case 'mobile':
+                filterCriteria = { mobile: { $regex: new RegExp(search, 'i') } };
+                break;
+            case 'city':
+                filterCriteria = { city: { $regex: new RegExp(search, 'i') } };
+                break;
+            default:
+                filterCriteria = {}; // No filter, show all
+                break;
+        }
+    }
+
+    try {
+        const employees = await Employee.find(filterCriteria);
+        res.render('index', {
+            list: employees,
+            filterBy: filterBy || 'all',
+            search: search || ''
+        });
+    } catch (err) {
+        console.error('Error fetching employees:', err);
+        res.status(500).send('Internal Server Error');
+    }
 });
 
 // Route to display employee list
