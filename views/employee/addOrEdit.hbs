@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -7,9 +8,67 @@
       rel="stylesheet"
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
     />
+    <style>
+      body {
+        background-image: url('https://res.cloudinary.com/dc4dywdvb/image/upload/v1727377999/unnamed_f4ciap.jpg');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        height: 100vh;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      .container {
+        max-width: 600px;
+        background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent background */
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      h2 {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #333;
+        font-weight: 700;
+      }
+
+      label {
+        font-weight: bold;
+      }
+
+      .form-control {
+        border-radius: 50px;
+        padding: 15px;
+        font-size: 1rem;
+        margin-bottom: 20px;
+      }
+
+      .btn-primary {
+        background-color: #007bff;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 50px;
+        width: 100%;
+        font-size: 1.2rem;
+        font-weight: bold;
+      }
+
+      .btn-primary:hover {
+        background-color: #0056b3;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+    </style>
   </head>
   <body>
-    <div class="container mt-5">
+    <div class="container">
       <h2>{{viewTitle}}</h2>
       
       <!-- Conditional form action for both create and update -->
@@ -19,8 +78,10 @@
           <input
             type="text"
             class="form-control"
+            id="fullName"
             name="fullName"
             value="{{employee.fullName}}"
+            placeholder="Enter full name"
             required
           />
         </div>
@@ -29,8 +90,10 @@
           <input
             type="email"
             class="form-control"
+            id="email"
             name="email"
             value="{{employee.email}}"
+            placeholder="Enter email address"
             required
           />
         </div>
@@ -39,8 +102,10 @@
           <input
             type="text"
             class="form-control"
+            id="mobile"
             name="mobile"
             value="{{employee.mobile}}"
+            placeholder="Enter mobile number"
             required
           />
         </div>
@@ -49,12 +114,16 @@
           <input
             type="text"
             class="form-control"
+            id="city"
             name="city"
             value="{{employee.city}}"
+            placeholder="Enter city"
             required
           />
         </div>
-        <button type="submit" class="btn btn-primary">{{#if employee._id}}Update{{else}}Create{{/if}}</button>
+        <button type="submit" class="btn btn-primary">
+          {{#if employee._id}}Update{{else}}Create{{/if}}
+        </button>
       </form>
     </div>
   </body>

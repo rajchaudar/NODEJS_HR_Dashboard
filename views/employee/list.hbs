@@ -1,5 +1,3 @@
-<!-- views/employee/list.hbs -->
-
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -9,11 +7,39 @@
       rel="stylesheet"
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
     />
+    <style>
+      body { background-image: url('https://example.com/background-image.jpg');
+      /* Update with your background image URL */ background-size: cover;
+      background-position: center; background-repeat: no-repeat; height: 100vh;
+      margin: 0; display: flex; align-items: center; justify-content: center;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333;
+      } .container { max-width: 1200px; background-color: rgba(255, 255, 255,
+      0.95); padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,
+      0, 0, 0.1); } h2 { text-align: center; margin-bottom: 30px; color:
+      #007bff; font-weight: 700; } table { margin-top: 20px; width: 100%; } th,
+      td { text-align: center; vertical-align: middle; } th { background-color:
+      #007bff; color: white; font-weight: bold; } td { background-color:
+      #95999e; } tr:nth-child(even) td { background-color: #f2f2f2; /* Alternate
+      row color */ } .btn-sm { font-size: 0.875rem; padding: 0.5rem 1rem;
+      border-radius: 50px; } .form-row { margin-bottom: 20px; } .search-box {
+      margin-bottom: 20px; } /* Filter button styles */ #searchBtn { background:
+      linear-gradient(45deg, #ff6f61, #de6f9f); border: none; border-radius:
+      50px; padding: 12px 20px; color: white; font-size: 1rem; font-weight:
+      bold; transition: background 0.3s, transform 0.3s; } #searchBtn:hover {
+      background: linear-gradient(45deg, #de6f9f, #ff6f61); transform:
+      translateY(-2px); } /* Styles for the input and select fields */
+      .form-control { border-radius: 50px; padding: 15px; } #searchType {
+      border: 1px solid #007bff; border-radius: 50px; padding: 10px;
+      font-weight: bold; color: #007bff; } #searchType option { font-weight:
+      normal; color: #333; } #searchType:hover { border-color: #0056b3;
+      background-color: #e9ecef; } .text-center { font-style: italic;
+      font-weight: bold; }
+    </style>
   </head>
   <body>
-    <div class="container mt-5">
+    <div class="container">
       <h2>Employee List</h2>
-      <div class="form-row mb-3">
+      <div class="form-row search-box">
         <div class="col-md-3">
           <select id="searchType" class="form-control">
             <option value="fullName">Full Name</option>
@@ -31,14 +57,11 @@
           />
         </div>
         <div class="col-md-3">
-          <button
-            id="searchBtn"
-            class="btn btn-primary btn-block"
-          >Search</button>
+          <button id="searchBtn" class="btn btn-block">Filter</button>
         </div>
       </div>
 
-      <table class="table table-bordered">
+      <table class="table table-bordered table-hover">
         <thead>
           <tr>
             <th>Full Name</th>
