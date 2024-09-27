@@ -3,26 +3,33 @@ var router = express.Router();
 const mongoose = require('mongoose');
 const Employee = mongoose.model('Employee');
 
+// GET: Display the form for adding a new employee
 router.get('/', (req, res) => {
     res.render("employee/addOrEdit", {
         viewTitle: "Insert Employee"
     });
 });
 
+// POST: Insert or update an employee record
 router.post('/', (req, res) => {
-    if (req.body._id == '')
+    if (req.body._id == '') {
         insertRecord(req, res);
-        else
+    } else {
         updateRecord(req, res);
+    }
 });
 
-
+// Function to insert a new employee record
 function insertRecord(req, res) {
     var employee = new Employee();
     employee.fullName = req.body.fullName;
     employee.email = req.body.email;
     employee.mobile = req.body.mobile;
     employee.city = req.body.city;
+    employee.salary = req.body.salary; // New field
+    employee.position = req.body.position; // New field
+    employee.employeeId = req.body.employeeId; // New field
+
     employee.save((err, doc) => {
         if (!err)
             res.redirect('employee/list');
@@ -33,45 +40,51 @@ function insertRecord(req, res) {
                     viewTitle: "Insert Employee",
                     employee: req.body
                 });
+            } else {
+                console.log('Error during record insertion: ' + err);
             }
-            else
-                console.log('Error during record insertion : ' + err);
         }
     });
 }
 
+// Function to update an existing employee record
 function updateRecord(req, res) {
-    Employee.findOneAndUpdate({ _id: req.body._id }, req.body, { new: true }, (err, doc) => {
-        if (!err) { res.redirect('employee/list'); }
-        else {
-            if (err.name == 'ValidationError') {
-                handleValidationError(err, req.body);
-                res.render("employee/addOrEdit", {
-                    viewTitle: 'Update Employee',
-                    employee: req.body
-                });
+    Employee.findOneAndUpdate(
+        { _id: req.body._id },
+        req.body,
+        { new: true },
+        (err, doc) => {
+            if (!err) {
+                res.redirect('employee/list');
+            } else {
+                if (err.name == 'ValidationError') {
+                    handleValidationError(err, req.body);
+                    res.render("employee/addOrEdit", {
+                        viewTitle: 'Update Employee',
+                        employee: req.body
+                    });
+                } else {
+                    console.log('Error during record update: ' + err);
+                }
             }
-            else
-                console.log('Error during record update : ' + err);
         }
-    });
+    );
 }
 
-
+// GET: Retrieve and display employee list
 router.get('/list', (req, res) => {
     Employee.find((err, docs) => {
         if (!err) {
             res.render("employee/list", {
                 list: docs
             });
-        }
-        else {
-            console.log('Error in retrieving employee list :' + err);
+        } else {
+            console.log('Error in retrieving employee list: ' + err);
         }
     });
 });
 
-
+// Handle validation errors
 function handleValidationError(err, body) {
     for (field in err.errors) {
         switch (err.errors[field].path) {
@@ -87,6 +100,7 @@ function handleValidationError(err, body) {
     }
 }
 
+// GET: Load the form with an existing employee's data for updating
 router.get('/:id', (req, res) => {
     Employee.findById(req.params.id, (err, doc) => {
         if (!err) {
@@ -98,12 +112,14 @@ router.get('/:id', (req, res) => {
     });
 });
 
+// GET: Delete an employee record by ID
 router.get('/delete/:id', (req, res) => {
     Employee.findByIdAndRemove(req.params.id, (err, doc) => {
         if (!err) {
             res.redirect('/employee/list');
+        } else {
+            console.log('Error in employee delete: ' + err);
         }
-        else { console.log('Error in employee delete :' + err); }
     });
 });
 

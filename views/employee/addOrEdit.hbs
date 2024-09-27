@@ -121,6 +121,45 @@
             required
           />
         </div>
+
+        <!-- New fields: Salary, Position, Employee ID -->
+        <div class="form-group">
+          <label for="salary">Salary</label>
+          <input
+            type="number"
+            class="form-control"
+            id="salary"
+            name="salary"
+            value="{{employee.salary}}"
+            placeholder="Enter salary"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="position">Position</label>
+          <input
+            type="text"
+            class="form-control"
+            id="position"
+            name="position"
+            value="{{employee.position}}"
+            placeholder="Enter position"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="employeeId">Employee ID</label>
+          <input
+            type="text"
+            class="form-control"
+            id="employeeId"
+            name="employeeId"
+            value="{{employee.employeeId}}"
+            placeholder="Enter employee ID"
+            required
+          />
+        </div>
+
         <button type="submit" class="btn btn-primary">
           {{#if employee._id}}Update{{else}}Create{{/if}}
         </button>

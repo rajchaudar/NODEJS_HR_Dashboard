@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const exphbs = require('hbs');
 const path = require('path');
-const Employee = require('./models/employee.model');
+require('dotenv').config();
 
 const app = express();
 const PORT = 3000;
@@ -16,32 +16,63 @@ app.set('views', path.join(__dirname, 'views'));
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(session({
-    secret: 'your-secret-key',
+    secret: process.env.SESSION_SECRET || 'your-secret-key',
     resave: false,
     saveUninitialized: true,
     cookie: { secure: false }
 }));
 
 // MongoDB connection
-mongoose.connect('mongodb://localhost:27017/EmployeeDB', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useFindAndModify: false // Add this line
-}, (err) => {
-    if (!err) {
+async function connectDB() {
+    try {
+        await mongoose.connect('mongodb://localhost:27017/EmployeeDB', {
+
+        });
         console.log('MongoDB Connection Succeeded.');
-    } else {
-        console.log('Error in DB connection: ' + err);
+    } catch (error) {
+        console.log('Error in DB connection: ' + error);
     }
-});
+}
+
+connectDB();
 
 // Employee schema and model
 const employeeSchema = new mongoose.Schema({
-    fullName: String,
-    email: String,
-    mobile: String,
-    city: String
+    employeeId: {
+        type: String,
+        required: true,
+        unique: true // Ensure employeeId is unique
+    },
+    fullName: {
+        type: String,
+        required: true
+    },
+    email: {
+        type: String,
+        required: true,
+        match: [/.+\@.+\..+/, 'Please enter a valid email address']
+    },
+    mobile: {
+        type: String,
+        required: true,
+        match: [/^\d{10}$/, 'Please enter a valid 10-digit mobile number']
+    },
+    city: {
+        type: String,
+        required: true
+    },
+    position: {
+        type: String,
+        required: true
+    },
+    salary: {
+        type: Number,
+        required: true,
+        min: [0, 'Salary cannot be negative']
+    }
 });
+
+const Employee = mongoose.model('Employee', employeeSchema);
 
 // Admin login route
 app.get('/admin/login', (req, res) => {
@@ -60,11 +91,10 @@ app.post('/admin/login', (req, res) => {
     }
 });
 
-
 // Protected routes (require admin login)
 app.get('/', (req, res) => {
     if (req.session.admin) {
-        res.render('adminDashboard', { message: 'Welcome ' });
+        res.render('adminDashboard', { message: 'Welcome Admin' });
     } else {
         res.redirect('/admin/login');
     }
@@ -80,32 +110,34 @@ function isAdmin(req, res, next) {
 }
 
 // Route to handle form submission
-app.post('/employee', (req, res) => {
+app.post('/employee', async (req, res) => {
     const employee = new Employee({
         fullName: req.body.fullName,
         email: req.body.email,
         mobile: req.body.mobile,
-        city: req.body.city
+        city: req.body.city,
+        salary: req.body.salary, // Make sure these fields exist in your schema
+        position: req.body.position,
+        employeeId: req.body.employeeId
     });
     console.log('Form data received:', req.body);
 
-    employee.save((err, doc) => {
-        if (!err) {
-            console.log('Employee saved successfully');
-            res.redirect('/employee/list');
-        } else {
-            console.error('Error during record insertion:', err);
-            res.render('employee/addOrEdit', {
-                viewTitle: 'Insert Employee',
-                employee: employee,
-                emailError: err.email ? err.email.message : ''
-            });
-        }
-    });
+    try {
+        await employee.save();
+        console.log('Employee saved successfully');
+        res.redirect('/employee/list');
+    } catch (err) {
+        console.error('Error during record insertion:', err);
+        res.render('employee/addOrEdit', {
+            viewTitle: 'Insert Employee',
+            employee: employee,
+            emailError: err.email ? err.email.message : ''
+        });
+    }
 });
 
 // Route to display employee list with filtering/searching functionality
-app.get('/', async (req, res) => {
+app.get('/employee/list', async (req, res) => {
     const { filterBy, search } = req.query;
 
     let filterCriteria = {};
@@ -124,15 +156,18 @@ app.get('/', async (req, res) => {
             case 'city':
                 filterCriteria = { city: { $regex: new RegExp(search, 'i') } };
                 break;
+            case 'position':
+                filterCriteria = { position: { $regex: new RegExp(search, 'i') } };
+                break;
             default:
-                filterCriteria = {}; // No filter, show all
+                filterCriteria = {};
                 break;
         }
     }
 
     try {
         const employees = await Employee.find(filterCriteria);
-        res.render('index', {
+        res.render('employee/list', {
             list: employees,
             filterBy: filterBy || 'all',
             search: search || ''
@@ -143,66 +178,69 @@ app.get('/', async (req, res) => {
     }
 });
 
-// Route to display employee list
-app.get('/employee/list', (req, res) => {
-    Employee.find((err, docs) => {
-        if (!err) {
-            res.render('employee/list', {
-                list: docs
-            });
-        } else {
-            console.error('Error fetching employees:', err);
-        }
-    });
-});
-
 // Route to display the edit form for a specific employee
-app.get('/employee/edit/:id', (req, res) => {
-    Employee.findById(req.params.id, (err, employee) => {
-        if (!err) {
+app.get('/employee/edit/:id', isAdmin, async (req, res) => {
+    try {
+        const employee = await Employee.findById(req.params.id);
+        if (employee) {
             res.render('employee/addOrEdit', {
                 viewTitle: 'Edit Employee',
                 employee: employee
             });
         } else {
-            console.error('Error fetching employee:', err);
-            res.status(500).send('Error fetching employee data');
+            res.status(404).send('Employee not found');
         }
-    });
+    } catch (err) {
+        console.error('Error fetching employee:', err);
+        res.status(500).send('Error fetching employee data');
+    }
 });
 
 // Route to update an existing employee
-app.post('/employee/update/:id', (req, res) => {
-    Employee.findByIdAndUpdate(req.params.id, {
-        fullName: req.body.fullName,
-        email: req.body.email,
-        mobile: req.body.mobile,
-        city: req.body.city
-    }, { new: true }, (err, doc) => {
-        if (!err) {
+app.post('/employee/update/:id', isAdmin, async (req, res) => {
+    try {
+        const updatedEmployee = await Employee.findByIdAndUpdate(req.params.id, {
+            employeeId: req.body.employeeId,
+            fullName: req.body.fullName,
+            email: req.body.email,
+            mobile: req.body.mobile,
+            city: req.body.city,
+            position: req.body.position,
+            salary: req.body.salary
+        }, { new: true });
+
+        if (updatedEmployee) {
             console.log('Employee updated successfully');
             res.redirect('/employee/list');
         } else {
-            console.error('Error during employee update:', err);
-            res.status(500).send('Error updating employee data');
+            res.status(404).send('Employee not found');
         }
-    });
+    } catch (err) {
+        console.error('Error during employee update:', err);
+        res.status(500).send('Error updating employee data');
+    }
 });
 
 // Route to delete an employee
-app.get('/employee/delete/:id', (req, res) => {
-    Employee.findByIdAndRemove(req.params.id, (err) => {
-        if (!err) {
-            console.log('Employee deleted successfully');
-            res.redirect('/employee/list');
-        } else {
-            console.error('Error during deletion:', err);
+app.get('/employee/delete/:id', isAdmin, async (req, res) => {
+    try {
+        const employee = await Employee.findByIdAndDelete(req.params.id);
+
+        if (!employee) {
+            console.log('No employee found with that ID');
+            return res.status(404).send('Employee not found');
         }
-    });
+
+        console.log(`Employee ${employee.fullName} deleted successfully.`);
+        res.redirect('/employee/list?success=true'); // Redirect with success message
+    } catch (err) {
+        console.error('Error during deletion: ', err);
+        res.status(500).send('Error deleting employee');
+    }
 });
 
 // Route to render the employee creation form
-app.get('/employee', (req, res) => {
+app.get('/employee', isAdmin, (req, res) => {
     res.render('employee/addOrEdit', {
         viewTitle: 'Insert Employee',
         employee: {}
