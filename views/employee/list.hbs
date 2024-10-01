@@ -7,43 +7,53 @@
       rel="stylesheet"
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    />
     <style>
       body { background: linear-gradient(135deg, #ff7e5f, #feb47b);
       background-size: cover; height: 100vh; margin: 0; font-family: 'Segoe UI',
       Tahoma, Geneva, Verdana, sans-serif; color: #333; } .container {
       max-width: 1350px; background-color: rgba(249, 236, 236, 0.9); padding:
       30px; border-radius: 10px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-      margin-top: 90px; /* Added margin-top for spacing from top */ } h2 {
-      text-align: center; margin-bottom: 30px; color: #3e50b4; /* Vibrant Blue
-      */ font-weight: 700; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); }
-      .table-responsive { max-height: 400px; /* Fixed height for scrolling */
-      overflow-y: auto; /* Enable vertical scrolling */ } table { margin-top:
-      20px; width: 100%; border-collapse: collapse; /* Better appearance */ }
-      th, td { text-align: center; vertical-align: middle; padding: 15px; /*
-      Added padding for better spacing */ } th { background-color: #3e50b4; /*
-      Vibrant Blue */ color: white; font-weight: bold; position: sticky; /*
-      Sticky header */ top: 0; /* Stick to the top */ z-index: 10; /* Ensure
-      header is above the content */ text-shadow: 1px 1px 2px rgba(0, 0, 0,
-      0.3); } td { background-color: #f9f9f9; /* Light background for rows */
-      transition: background-color 0.3s; /* Smooth hover effect */ }
-      tr:nth-child(even) td { background-color: #bdb5b5; /* Even row color */ }
-      tr:hover td { background-color: #d8ecfb; /* Highlight on hover */ }
-      .btn-sm { font-size: 0.875rem; padding: 0.5rem 1rem; border-radius: 50px;
-      } .form-row { margin-bottom: 20px; } .search-box { margin-bottom: 20px; }
-      #searchBtn { background: linear-gradient(45deg, #ff6f61, #de6f9f); border:
-      none; border-radius: 50px; padding: 12px 20px; color: white; font-size:
-      1rem; font-weight: bold; transition: background 0.3s, transform 0.3s; }
-      #searchBtn:hover { background: linear-gradient(45deg, #de6f9f, #ff6f61);
-      transform: translateY(-2px); } .form-control { border-radius: 50px;
-      padding: 15px; border: 1px solid #3e50b4; /* Vibrant Blue border */ }
-      #searchType { border: 1px solid #3e50b4; /* Vibrant Blue */ border-radius:
-      50px; padding: 10px; font-weight: bold; color: #3e50b4; /* Vibrant Blue
-      text */ } #searchType option { font-weight: normal; color: #333; }
-      #searchType:hover { border-color: #0056b3; background-color: #e9ecef; }
-      .text-center { font-style: italic; font-weight: bold; }
+      margin-top: 90px; } h2 { text-align: center; margin-bottom: 30px; color:
+      #3e50b4; font-weight: 700; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); }
+      .table-responsive { max-height: 400px; overflow-y: auto; } table {
+      margin-top: 20px; width: 100%; border-collapse: collapse; } th, td {
+      text-align: center; vertical-align: middle; padding: 15px; } th {
+      background-color: #3e50b4; color: white; font-weight: bold; position:
+      sticky; top: 0; z-index: 10; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+      } td { background-color: #f9f9f9; transition: background-color 0.3s; }
+      tr:nth-child(even) td { background-color: #bdb5b5; } tr:hover td {
+      background-color: #d8ecfb; } .btn-sm { font-size: 0.875rem; padding:
+      0.5rem 1rem; border-radius: 50px; } .form-row { margin-bottom: 20px; }
+      .search-box { margin-bottom: 20px; } #searchBtn { background:
+      linear-gradient(45deg, #ff6f61, #de6f9f); border: none; border-radius:
+      50px; padding: 12px 20px; color: white; font-size: 1rem; font-weight:
+      bold; transition: background 0.3s, transform 0.3s; } #searchBtn:hover {
+      background: linear-gradient(45deg, #de6f9f, #ff6f61); transform:
+      translateY(-2px); } .form-control { border-radius: 50px; padding: 15px;
+      border: 1px solid #3e50b4; } #searchType { border: 1px solid #3e50b4;
+      border-radius: 50px; padding: 10px; font-weight: bold; color: #3e50b4; }
+      #searchType option { font-weight: normal; color: #333; } #searchType:hover
+      { border-color: #0056b3; background-color: #e9ecef; } .text-center {
+      font-style: italic; font-weight: bold; } .home-btn { background: #3e50b4;
+      color: white; padding: 10px 20px; border-radius: 50px; font-weight: bold;
+      display: inline-flex; align-items: center; text-decoration: none;
+      transition: background-color 0.3s, transform 0.3s; } .home-btn:hover {
+      background-color: #5f6ec2; transform: translateY(-2px); } .home-btn i {
+      margin-right: 8px; }.header { background: #f6f6f6; color: white; padding:
+      10px 0; text-align: left; position: fixed; top: 0; left: 0; right: 0;
+      z-index: 100; }
     </style>
   </head>
   <body>
+    <div class="header">
+      <a href="/" class="home-btn">
+        <i class="fas fa-home"></i>
+        Home
+      </a></div>
     <div class="container">
       <h2>Employee List</h2>
       <div class="form-row search-box">
