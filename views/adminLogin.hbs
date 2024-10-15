@@ -24,6 +24,9 @@
       padding: 12px 30px; border-radius: 50px; width: 100%; font-size: 1.2rem;
       font-weight: bold; } .btn-login:hover { background-color: #0056b3; }
       .error-message { color: red; text-align: center; margin-bottom: 20px; }
+      .link-container { text-align: center; margin-top: 20px; } .link-container
+      a { color: #007bff; text-decoration: none; } .link-container a:hover {
+      text-decoration: underline; }
     </style>
   </head>
   <body>
@@ -44,6 +47,7 @@
             name="username"
             class="form-control"
             required
+            aria-label="Username"
           />
         </div>
 
@@ -55,11 +59,25 @@
             name="password"
             class="form-control"
             required
+            aria-label="Password"
           />
+          <input type="checkbox" id="showPassword" />
+          <label for="showPassword">Show Password</label>
         </div>
 
         <button type="submit" class="btn btn-login">Login</button>
       </form>
+
+      <div class="link-container">
+        <p>Don't have an account? <a href="/admin/create">Create Admin</a></p>
+      </div>
     </div>
+
+    <script>
+      const showPasswordCheckbox = document.getElementById('showPassword');
+      const passwordField = document.getElementById('password');
+      showPasswordCheckbox.addEventListener('change', function () {
+      passwordField.type = this.checked ? 'text' : 'password'; });
+    </script>
   </body>
 </html>

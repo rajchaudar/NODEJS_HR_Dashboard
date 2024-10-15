@@ -1,10 +1,17 @@
+// Import necessary modules
 const express = require('express');
 const session = require('express-session');
 const mongoose = require('mongoose');
+const os = require('os');
 const bodyParser = require('body-parser');
 const exphbs = require('hbs');
 const path = require('path');
 require('dotenv').config();
+const Admin = require('./models/admin'); // Import the Admin model
+const bcrypt = require('bcryptjs'); // Import bcrypt for password hashing
+const Employee = require('./models/employee.model');
+const connectDB = require('./models/db');
+connectDB();
 
 const app = express();
 const PORT = 3000;
@@ -22,72 +29,60 @@ app.use(session({
     cookie: { secure: false }
 }));
 
-// MongoDB connection
-async function connectDB() {
-    try {
-        await mongoose.connect('mongodb://localhost:27017/EmployeeDB', {
-
-        });
-        console.log('MongoDB Connection Succeeded.');
-    } catch (error) {
-        console.log('Error in DB connection: ' + error);
-    }
-}
-
-connectDB();
-
-// Employee schema and model
-const employeeSchema = new mongoose.Schema({
-    employeeId: {
-        type: String,
-        required: true,
-        unique: true // Ensure employeeId is unique
-    },
-    fullName: {
-        type: String,
-        required: true
-    },
-    email: {
-        type: String,
-        required: true,
-        match: [/.+\@.+\..+/, 'Please enter a valid email address']
-    },
-    mobile: {
-        type: String,
-        required: true,
-        match: [/^\d{10}$/, 'Please enter a valid 10-digit mobile number']
-    },
-    city: {
-        type: String,
-        required: true
-    },
-    position: {
-        type: String,
-        required: true
-    },
-    salary: {
-        type: Number,
-        required: true,
-        min: [0, 'Salary cannot be negative']
-    }
+// Route to render the admin creation form
+app.get('/admin/create', (req, res) => {
+    res.render('createAdmin');
 });
 
-const Employee = mongoose.model('Employee', employeeSchema);
-
-// Admin login route
-app.get('/admin/login', (req, res) => {
-    res.render('adminLogin');  // Ensure 'adminLogin.hbs' exists in 'views' folder
-});
-
-app.post('/admin/login', (req, res) => {
+// Route to create admin credentials
+app.post('/admin/create', async (req, res) => {
     const { username, password } = req.body;
 
-    // Hardcoded credentials check
-    if (username === 'admin' && password === 'admin123') {
-        req.session.admin = true;
-        res.redirect('/');
-    } else {
-        res.render('adminLogin', { error: 'Invalid credentials' });
+    try {
+        const existingAdmin = await Admin.findOne({ username });
+        if (existingAdmin) {
+            return res.render('adminLogin', { error: 'Admin already exists' });
+        }
+
+        const admin = new Admin({ username, password });
+        await admin.save();
+        // console.log('Admin created:', admin);
+        res.redirect('/admin/login');
+    } catch (error) {
+        console.error('Error creating admin:', error);
+        res.status(500).send('Server Error');
+    }
+});
+
+// Admin login route (GET)
+app.get('/admin/login', (req, res) => {
+    res.render('adminLogin');
+});
+
+// Admin login route (POST)
+app.post('/admin/login', async (req, res) => {
+    const { username, password } = req.body; // Get username and password from the request body
+
+    try {
+        // Fetch the admin user from the database
+        const admin = await Admin.findOne({ username });
+
+        if (!admin) {
+            return res.render('adminLogin', { error: 'Invalid credentials' }); // Admin not found
+        }
+
+        // Compare entered password with stored hashed password
+        const isMatch = await bcrypt.compare(password, admin.password);
+
+        if (isMatch) {
+            req.session.admin = true; // Set admin session
+            res.redirect('/'); // Redirect to dashboard after successful login
+        } else {
+            res.render('adminLogin', { error: 'Invalid credentials' }); // Invalid password
+        }
+    } catch (error) {
+        console.error('Error during admin login:', error);
+        res.render('adminLogin', { error: 'Something went wrong, please try again' });
     }
 });
 
@@ -116,7 +111,7 @@ app.post('/employee', async (req, res) => {
         email: req.body.email,
         mobile: req.body.mobile,
         city: req.body.city,
-        salary: req.body.salary, // Make sure these fields exist in your schema
+        salary: req.body.salary, // Ensure these fields exist in your schema
         position: req.body.position,
         employeeId: req.body.employeeId
     });
@@ -247,7 +242,23 @@ app.get('/employee', isAdmin, (req, res) => {
     });
 });
 
+// Function to get local IP address
+function getLocalIPAddress() {
+    const interfaces = os.networkInterfaces();
+    for (const iface of Object.values(interfaces)) {
+        for (const details of iface) {
+            if (details.family === 'IPv4' && !details.internal) {
+                return details.address;
+            }
+        }
+    }
+    return 'localhost'; // Fallback if no IP found
+}
+
 // Start the server
 app.listen(PORT, () => {
+    const localIPAddress = getLocalIPAddress(); // Get local IP address
     console.log(`Server is running on port ${PORT}`);
+    console.log(`Access it at http://localhost:${PORT}`);
+    console.log(`Access it on local network at http://${localIPAddress}:${PORT}`);
 });
