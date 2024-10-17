@@ -4,7 +4,7 @@ const session = require('express-session');
 const mongoose = require('mongoose');
 const os = require('os');
 const bodyParser = require('body-parser');
-const exphbs = require('hbs');
+const hbs = require('hbs');
 const path = require('path');
 require('dotenv').config();
 const Admin = require('./models/admin'); // Import the Admin model
@@ -24,6 +24,9 @@ const PORT = 3000;
 app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
+hbs.registerHelper('json', function (context) {
+    return JSON.stringify(context);
+});
 
 
 // Register the router for the promotion routes
