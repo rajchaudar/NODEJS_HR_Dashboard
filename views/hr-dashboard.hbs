@@ -237,40 +237,43 @@
 
   <script>
     async function addPromotion(event) {
-      event.preventDefault();
-      const employeeId = document.getElementById('promotionEmployee').value;
-      const previousPosition = document.getElementById('previousPosition').value;
-      const newPosition = document.getElementById('newPosition').value;
+  event.preventDefault();
+  const employeeId = document.getElementById('promotionEmployee').value;
+  const previousPosition = document.getElementById('previousPosition').value;
+  const newPosition = document.getElementById('newPosition').value;
 
-      if (!newPosition) {
-        displayError('New Position cannot be empty.');
-        return;
-      }
+  if (!newPosition) {
+    displayError('New Position cannot be empty.');
+    return;
+  }
 
-      try {
-        document.getElementById('loadingSpinner').style.display = 'inline-block';
-        const response = await fetch('/promotion/create', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ employeeId, previousPosition, newPosition }),
-        });
+  try {
+    document.getElementById('loadingSpinner').style.display = 'inline-block';
+    const response = await fetch('/promotion/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ employeeId, previousPosition, newPosition }),
+    });
 
-        if (response.ok) {
-          const data = await response.json();
-          displaySuccess(data.message || 'Promotion logged successfully!');
-          document.getElementById('addPromotionForm').reset();
-        } else {
-          const errorText = await response.text();
-          displayError(errorText || 'Failed to log promotion.');
-        }
-      } catch (error) {
-        displayError('Network error. Please check the server status.');
-      } finally {
-        document.getElementById('loadingSpinner').style.display = 'none';
-      }
+    if (response.ok) {
+      const data = await response.json();
+      displaySuccess(data.message || 'Promotion logged successfully!');
+      document.getElementById('addPromotionForm').reset();
+      setTimeout(() => {
+        window.location.reload(); 
+      }, 3000); 
+    } else {
+      const errorText = await response.text();
+      displayError(errorText || 'Failed to log promotion.');
     }
+  } catch (error) {
+    displayError('Network error. Please check the server status.');
+  } finally {
+    document.getElementById('loadingSpinner').style.display = 'none';
+  }
+}
 
     async function fetchCurrentPosition() {
       const employeeId = document.getElementById('promotionEmployee').value;
