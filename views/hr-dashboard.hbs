@@ -19,7 +19,7 @@
       flex-direction: column;
     }
    .header {
-  background: #f6f6f6;
+  background: #6a6969;
   color: rgb(6, 3, 3);
   padding: 10px 0;
   text-align: center;
@@ -60,13 +60,13 @@
       transition: opacity 0.5s ease;
     }
     h2 {
-      color: #007bff; /* Bootstrap primary color */
+      color: #000000; /* Bootstrap primary color */
       margin-top: 20px;
     }
     .card {
       border-radius: 10px;
       margin-bottom: 20px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 8px rgb(18, 44, 214);
     }
     .table {
       background-color: #ffffff;
@@ -78,7 +78,7 @@
       border-radius: 5px;
     }
     .btn-primary {
-      background-color: #007bff;
+      background: linear-gradient(to right, #1b0f8dd2, #7a1e1ee2); color: white;
       border: none;
       transition: background-color 0.3s; /* Smooth color transition */
     }
@@ -94,6 +94,7 @@
     .scrollable-card {
       max-height: 300px; /* Adjust height as needed */
       overflow-y: auto;
+      background-color: rgba(222, 17, 17, 0.209);
     }
   </style>
 </head>
@@ -111,12 +112,14 @@
     <div class="row">
       <div class="col-md-6">
         <div class="card mb-4">
-          <div class="card-header">
+          <div class="card-header"
+            style="background-color: rgb(123, 122, 122, 0.513);">
             <h2>Departments</h2>
           </div>
           <div class="card-body scrollable-card">
             <table class="table table-striped">
-              <thead class="thead-dark">
+              <thead
+                style="background: linear-gradient(to right, #1b0f8dd2, #7a1e1ee2); color: white;">
                 <tr>
                   <th>Department Name</th>
                   <th>Employee Count</th>
@@ -137,125 +140,136 @@
 
       <div class="col-md-6">
         <div class="card mb-4">
-          <div class="card-header">
+          <div class="card-header"
+            style="background-color: rgb(123, 122, 122, 0.513);">
             <h2>Promotion Tracking</h2>
           </div>
           <div class="card-body scrollable-card">
             <table class="table table-striped">
-              <thead class="thead-dark">
+              <thead
+                style="background: linear-gradient(to right, #1b0f8dd2, #7a1e1ee2); color: white;">
                 <tr>
-                  <th>Employee Name</th>
-                  <th>Previous Position</th>
-                  <th>New Position</th>
-                  <th>Promotion Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {{#each promotions}}
-                <tr>
-                  <td>{{this.employee.fullName}}</td>
-                  <td>{{this.previousPosition}}</td>
-                  <td>{{this.newPosition}}</td>
-                  <td>{{this.promotionDate}}</td>
-                </tr>
-                {{/each}}
-              </tbody>
-            </table>
+                  <tr>
+                    <th>Employee Name</th>
+                    <th>Previous Position</th>
+                    <th>New Position</th>
+                    <th>Promotion Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {{#each promotions}}
+                  <tr>
+                    <td>{{this.employee.fullName}}</td>
+                    <td>{{this.previousPosition}}</td>
+                    <td>{{this.newPosition}}</td>
+                    <td>{{this.promotionDate}}</td>
+                  </tr>
+                  {{/each}}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="card mb-4">
-      <div
-        class="card-header d-flex justify-content-between align-items-center">
-        <h2>Employees</h2>
-        <div class="form-row search-box">
-          <div class="col-md-3">
-            <select id="searchType" class="form-control">
-              <option value="position">Position</option>
-              <option value="department">Department</option>
-              <option value="hasPosition">Has Position</option>
-            </select>
+      <div class="card mb-4">
+        <div
+          class="card-header d-flex justify-content-between align-items-center"
+          style="background-color: rgba(123, 122, 122, 0.513); ">
+          <h2>Employees</h2>
+          <div class="form-row search-box">
+            <div class="col-md-3">
+              <select id="searchType" class="form-control">
+                <option value="position">Position</option>
+                <option value="department">Department</option>
+                <option value="hasPosition">Has Position</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <input
+                type="text"
+                id="searchInput"
+                class="form-control"
+                placeholder="Search by selected option..." />
+            </div>
+            <div class="col-md-3">
+              <button id="searchBtn" class="btn btn-block"
+                style="background: linear-gradient(to right, #1b0f8dd2, #7a1e1ee2); color: white;">
+                <tr>Filter</button>
+              </div>
+            </div>
           </div>
-          <div class="col-md-6">
-            <input
-              type="text"
-              id="searchInput"
-              class="form-control"
-              placeholder="Search by selected option..." />
-          </div>
-          <div class="col-md-3">
-            <button id="searchBtn" class="btn btn-block">Filter</button>
-          </div>
-        </div>
-      </div>
-      <div class="card-body scrollable-card">
-        <table class="table table-striped" id="employeeTable">
-          <thead class="thead-dark">
-            <tr>
-              <th>Employee Name</th>
-              <th>Position</th>
-              <th>Department</th>
-              <th>Has Position</th>
-            </tr>
-          </thead>
-          <tbody id="employeeTableBody">
-            {{#each employees}}
-            <tr>
-              <td>{{this.fullName}}</td>
-              <td>{{this.position}}</td>
-              <td>{{#if
-                this.department}}{{this.department.name}}{{else}}N/A{{/if}}</td>
-              <td>{{#if this.position}}Yes{{else}}No{{/if}}</td>
-            </tr>
-            {{/each}}
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="card mb-4">
-      <div class="card-header">
-        <h3>Add New Promotion</h3>
-      </div>
-      <div class="card-body">
-        <form id="addPromotionForm" onsubmit="addPromotion(event)">
-          <div class="form-group">
-            <label for="promotionEmployee">Select Employee:</label>
-            <select id="promotionEmployee" class="form-control" required
-              onchange="fetchCurrentPosition()">
-              {{#each employees}}
-              <option value="{{this._id}}">{{this.fullName}}</option>
-              {{/each}}
-            </select>
+          <div class="card-body scrollable-card">
+            <table class="table table-striped" id="employeeTable">
+              <thead
+                style="background: linear-gradient(to right, #1b0f8dd2, #7a1e1ee2); color: white;">
+                <tr>
+                  <tr>
+                    <th>Employee Name</th>
+                    <th>Position</th>
+                    <th>Department</th>
+                    <th>Has Position</th>
+                  </tr>
+                </thead>
+                <tbody id="employeeTableBody">
+                  {{#each employees}}
+                  <tr>
+                    <td>{{this.fullName}}</td>
+                    <td>{{this.position}}</td>
+                    <td>{{#if
+                      this.department}}{{this.department.name}}{{else}}N/A{{/if}}</td>
+                    <td>{{#if this.position}}Yes{{else}}No{{/if}}</td>
+                  </tr>
+                  {{/each}}
+                </tbody>
+              </table>
+            </div>
           </div>
 
-          <div class="form-group">
-            <label for="previousPosition">Previous Position:</label>
-            <input type="text" id="previousPosition" class="form-control"
-              placeholder="Previous Position" required readonly />
+          <div class="card mb-4">
+            <div class="card-header"
+              style="background: linear-gradient(to right, #1b0f8dd2, #7a1e1ee2); color: white;">
+              <tr>
+                <h3>Add New Promotion</h3>
+              </div>
+              <div class="card-body">
+                <form id="addPromotionForm" onsubmit="addPromotion(event)">
+                  <div class="form-group">
+                    <label for="promotionEmployee">Select Employee:</label>
+                    <select id="promotionEmployee" class="form-control" required
+                      onchange="fetchCurrentPosition()">
+                      {{#each employees}}
+                      <option value="{{this._id}}">{{this.fullName}}</option>
+                      {{/each}}
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="previousPosition">Previous Position:</label>
+                    <input type="text" id="previousPosition"
+                      class="form-control"
+                      placeholder="Previous Position" required readonly />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="newPosition">New Position:</label>
+                    <input type="text" id="newPosition" class="form-control"
+                      placeholder="New Position" required />
+                  </div>
+
+                  <button type="submit" id="submitPromotion"
+                    class="btn btn-primary">Log
+                    Promotion</button>
+                  <div id="loadingSpinner" class="spinner-border text-primary"
+                    role="status">
+                    <span class="sr-only">Loading...</span>
+                  </div>
+                </form>
+              </div>
+            </div>
           </div>
 
-          <div class="form-group">
-            <label for="newPosition">New Position:</label>
-            <input type="text" id="newPosition" class="form-control"
-              placeholder="New Position" required />
-          </div>
-
-          <button type="submit" id="submitPromotion"
-            class="btn btn-primary">Log
-            Promotion</button>
-          <div id="loadingSpinner" class="spinner-border text-primary"
-            role="status">
-            <span class="sr-only">Loading...</span>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <script>
+          <script>
   document.getElementById('searchInput').addEventListener('input', function () {
       const searchType = document.getElementById('searchType').value;
       const searchInput = document.getElementById('searchInput').value.toLowerCase();
@@ -364,4 +378,4 @@
       });
     }); 
   </script>
-</body>
+        </body>
