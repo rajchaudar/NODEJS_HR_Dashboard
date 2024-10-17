@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-const employeeSchema = new mongoose.Schema({
+const employeeSchema = new Schema({
     employeeId: {
         type: String,
         required: true,
@@ -32,6 +33,11 @@ const employeeSchema = new mongoose.Schema({
         type: Number,
         required: true,
         min: [0, 'Salary cannot be negative']
+    },
+    department: {
+        type: Schema.Types.ObjectId,
+        ref: 'Department', // Reference to Department model
+        required: true
     }
 });
 

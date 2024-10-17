@@ -192,7 +192,13 @@ label {
             placeholder="Enter salary"
             required
           />
-        </div>
+        <div class="form-group">
+    <label for="department">Department</label>
+    <select id="department" class="form-control" name="department" required>
+        <option value="">Select Department</option>
+    </select>
+</div>
+
         <div class="form-group">
           <label for="position">Position</label>
           <input
@@ -225,3 +231,30 @@ label {
     </div>
   </body>
 </html>
+<script>
+    async function fetchAllDepartments() {
+        try {
+            const response = await fetch('/departments');
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const departments = await response.json();
+
+            const departmentSelect = document.getElementById('department');
+            departmentSelect.innerHTML = '<option value="">Select Department</option>'; // Clear existing options
+
+            // Populate the select element with department options
+            departments.forEach(department => {
+                const option = document.createElement('option');
+                option.value = department._id;
+                option.textContent = department.name;
+                departmentSelect.appendChild(option);
+            });
+        } catch (error) {
+            console.error('Error fetching departments:', error);
+        }
+    }
+
+    // Call the function to fetch departments when the page loads
+    window.onload = fetchAllDepartments;
+</script>

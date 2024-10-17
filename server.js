@@ -9,8 +9,12 @@ const path = require('path');
 require('dotenv').config();
 const Admin = require('./models/admin'); // Import the Admin model
 const bcrypt = require('bcryptjs'); // Import bcrypt for password hashing
-const Employee = require('./models/employee.model');
+const Employee = require('./models/employee.model'); // Only keep one import for Employee
 const connectDB = require('./models/db');
+const router = express.Router();
+const Department = require('./models/department');
+const Promotion = require('./models/Promotion');
+
 connectDB();
 
 const app = express();
@@ -19,6 +23,12 @@ const PORT = 3000;
 // Set Handlebars as the view engine
 app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'views'));
+app.use(express.static(path.join(__dirname, 'public')));
+
+
+// Register the router for the promotion routes
+app.use('/promotion', router);
+
 
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -107,13 +117,14 @@ function isAdmin(req, res, next) {
 // Route to handle form submission
 app.post('/employee', async (req, res) => {
     const employee = new Employee({
+        employeeId: req.body.employeeId,
         fullName: req.body.fullName,
         email: req.body.email,
         mobile: req.body.mobile,
         city: req.body.city,
-        salary: req.body.salary, // Ensure these fields exist in your schema
+        salary: req.body.salary,
         position: req.body.position,
-        employeeId: req.body.employeeId
+        department: req.body.department
     });
     console.log('Form data received:', req.body);
 
@@ -128,6 +139,17 @@ app.post('/employee', async (req, res) => {
             employee: employee,
             emailError: err.email ? err.email.message : ''
         });
+    }
+});
+
+// Example: Fetching departments from a database (e.g., MongoDB)
+app.get('/create-employee', async (req, res) => {
+    try {
+        const departments = await Department.find(); // Adjust this according to your model
+        res.render('create-employee', { viewTitle: 'Create Employee', departments });
+    } catch (error) {
+        console.error("Error fetching departments:", error);
+        res.status(500).send("Internal Server Error");
     }
 });
 
@@ -240,6 +262,139 @@ app.get('/employee', isAdmin, (req, res) => {
         viewTitle: 'Insert Employee',
         employee: {}
     });
+});
+
+// Route to get all departments
+app.get('/departments', async (req, res) => {
+    try {
+        const departments = await Department.find();
+        res.json(departments); // Send the departments as JSON
+    } catch (error) {
+        console.error('Error fetching departments:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+
+app.get('/employee/:id/edit', async (req, res) => {
+    const employee = await Employee.findById(req.params.id).populate('department');
+    const departments = await Department.find(); // Fetch departments
+    res.render('employee/addOrEdit', { employee, departments, viewTitle: 'Edit Employee' });
+});
+
+
+// Create a new department
+router.post('/department/create', async (req, res) => {
+    const { name } = req.body;
+
+    try {
+        const department = new Department({ name });
+        await department.save();
+        res.status(201).json(department);
+    } catch (error) {
+        res.status(500).json({ error: 'Error creating department' });
+    }
+});
+
+
+// Create a new employee and assign to a department
+router.post('/employee/create', async (req, res) => {
+    const { name, position, departmentId } = req.body;
+
+    try {
+        const employee = new Employee({ name, position, department: departmentId });
+        await employee.save();
+
+        // Update department's employee count
+        await Department.findByIdAndUpdate(departmentId, { $inc: { employeeCount: 1 } });
+
+        res.status(201).json(employee);
+    } catch (error) {
+        res.status(500).json({ error: 'Error creating employee' });
+    }
+});
+
+
+// Parse JSON body
+app.use(express.json());  // Make sure this line is present
+
+app.post('/promotion/create', async (req, res) => {
+    const { employeeId, previousPosition, newPosition } = req.body;
+
+    try {
+        // Find and update the employee's position
+        const employee = await Employee.findById(employeeId);
+        if (!employee) {
+            return res.status(404).json({ message: 'Employee not found' });
+        }
+
+        // Log the promotion
+        const promotion = new Promotion({
+            employee: employeeId,
+            previousPosition,
+            newPosition,
+            promotionDate: new Date(), // Or your desired date logic
+        });
+
+        await promotion.save(); // Save the promotion to the database
+
+        // Update the employee's position
+        employee.position = newPosition;
+        await employee.save(); // Save the updated employee
+
+        return res.status(200).json({ message: 'Promotion logged successfully' });
+    } catch (error) {
+        console.error('Error logging promotion:', error);
+        return res.status(500).json({ message: 'Error logging promotion' });
+    }
+});
+
+
+// HR Dashboard Route
+app.get('/hr-dashboard', async (req, res) => {
+    try {
+        // Fetch all departments with employee count
+        const departments = await Department.find().lean(); // .lean() for faster rendering
+        const departmentEmployeeCounts = await Employee.aggregate([
+            { $group: { _id: '$department', count: { $sum: 1 } } }
+        ]);
+
+        // Merge department names and counts
+        departments.forEach(department => {
+            const countData = departmentEmployeeCounts.find(d => d._id && d._id.toString() === department._id.toString());
+            department.employeeCount = countData ? countData.count : 0;
+        });
+
+        // Fetch all employees
+        const employees = await Employee.find().populate('department').lean();
+
+        // Fetch all promotions
+        const promotions = await Promotion.find().populate('employee').lean();
+
+        res.render('hr-dashboard', {
+            departments, // List of departments and their employee counts
+            employees,   // List of employees and their positions/departments
+            promotions   // Promotion tracking data
+        });
+    } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+        res.status(500).send('Server Error');
+    }
+});
+
+
+app.get('/employee/:id', async (req, res) => {
+    const employeeId = req.params.id;
+    try {
+        const employee = await Employee.findById(employeeId).populate('department');
+        if (!employee) {
+            return res.status(404).json({ error: 'Employee not found' });
+        }
+        res.json({ position: employee.position, department: employee.department });
+    } catch (error) {
+        console.error('Error fetching employee:', error); // Log entire error object
+        res.status(500).json({ error: 'Internal server error', details: error });
+    }
 });
 
 // Function to get local IP address
