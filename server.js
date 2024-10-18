@@ -7,9 +7,9 @@ const bodyParser = require('body-parser');
 const hbs = require('hbs');
 const path = require('path');
 require('dotenv').config();
-const Admin = require('./models/admin'); // Import the Admin model
-const bcrypt = require('bcryptjs'); // Import bcrypt for password hashing
-const Employee = require('./models/employee.model'); // Only keep one import for Employee
+const Admin = require('./models/admin');
+const bcrypt = require('bcryptjs');
+const Employee = require('./models/employee.model');
 const connectDB = require('./models/db');
 const router = express.Router();
 const Department = require('./models/department');
@@ -243,8 +243,12 @@ app.post('/employee/update/:id', isAdmin, async (req, res) => {
 
 // Route to delete an employee
 app.get('/employee/delete/:id', isAdmin, async (req, res) => {
+    const employeeId = req.params.id; // Define employeeId from route params
+
     try {
-        const employee = await Employee.findByIdAndDelete(req.params.id);
+        await Promotion.deleteMany({ employee: employeeId });
+
+        const employee = await Employee.findByIdAndDelete(employeeId);
 
         if (!employee) {
             console.log('No employee found with that ID');
@@ -357,27 +361,24 @@ app.post('/promotion/create', async (req, res) => {
 app.get('/hr-dashboard', async (req, res) => {
     try {
         // Fetch all departments with employee count
-        const departments = await Department.find().lean(); // .lean() for faster rendering
+        const departments = await Department.find().lean();
         const departmentEmployeeCounts = await Employee.aggregate([
             { $group: { _id: '$department', count: { $sum: 1 } } }
         ]);
 
-        // Merge department names and counts
         departments.forEach(department => {
             const countData = departmentEmployeeCounts.find(d => d._id && d._id.toString() === department._id.toString());
             department.employeeCount = countData ? countData.count : 0;
         });
 
-        // Fetch all employees
         const employees = await Employee.find().populate('department').lean();
 
-        // Fetch all promotions
         const promotions = await Promotion.find().populate('employee').lean();
 
         res.render('hr-dashboard', {
-            departments, // List of departments and their employee counts
-            employees,   // List of employees and their positions/departments
-            promotions   // Promotion tracking data
+            departments,
+            employees,
+            promotions
         });
     } catch (error) {
         console.error('Error fetching dashboard data:', error);
@@ -395,7 +396,7 @@ app.get('/employee/:id', async (req, res) => {
         }
         res.json({ position: employee.position, department: employee.department });
     } catch (error) {
-        console.error('Error fetching employee:', error); // Log entire error object
+        console.error('Error fetching employee:', error);
         res.status(500).json({ error: 'Internal server error', details: error });
     }
 });
@@ -410,7 +411,7 @@ function getLocalIPAddress() {
             }
         }
     }
-    return 'localhost'; // Fallback if no IP found
+    return 'localhost';
 }
 
 // Start the server

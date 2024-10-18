@@ -1,8 +1,5 @@
 const mongoose = require('mongoose');
-
-// ANSI escape codes for green text
 const green = '\x1b[32m';
-
 async function connectDB() {
     try {
         await mongoose.connect('mongodb://localhost:27017/EmployeeDB');

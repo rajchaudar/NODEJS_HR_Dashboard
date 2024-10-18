@@ -36,7 +36,7 @@ const employeeSchema = new Schema({
     },
     department: {
         type: Schema.Types.ObjectId,
-        ref: 'Department', // Reference to Department model
+        ref: 'Department',
         required: true
     }
 });

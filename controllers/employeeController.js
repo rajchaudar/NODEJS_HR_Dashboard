@@ -3,14 +3,12 @@ var router = express.Router();
 const mongoose = require('mongoose');
 const Employee = mongoose.model('Employee');
 
-// GET: Display the form for adding a new employee
 router.get('/', (req, res) => {
     res.render("employee/addOrEdit", {
         viewTitle: "Insert Employee"
     });
 });
 
-// POST: Insert or update an employee record
 router.post('/', (req, res) => {
     if (req.body._id == '') {
         insertRecord(req, res);
@@ -19,16 +17,15 @@ router.post('/', (req, res) => {
     }
 });
 
-// Function to insert a new employee record
 function insertRecord(req, res) {
     var employee = new Employee();
     employee.fullName = req.body.fullName;
     employee.email = req.body.email;
     employee.mobile = req.body.mobile;
     employee.city = req.body.city;
-    employee.salary = req.body.salary; // New field
-    employee.position = req.body.position; // New field
-    employee.employeeId = req.body.employeeId; // New field
+    employee.salary = req.body.salary;
+    employee.position = req.body.position;
+    employee.employeeId = req.body.employeeId;
 
     employee.save((err, doc) => {
         if (!err)
