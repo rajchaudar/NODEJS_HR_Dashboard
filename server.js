@@ -1,19 +1,26 @@
 const express = require('express');
+const session = require('express-session');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const exphbs = require('hbs');
-const path = require('path'); // Import path
-const Employee = require('./models/employee.model'); // Adjust path based on your structure
+const path = require('path');
+const Employee = require('./models/employee.model');
 
 const app = express();
 const PORT = 3001;
 
 // Set Handlebars as the view engine
 app.set('view engine', 'hbs');
-app.set('views', path.join(__dirname, 'views'));  // Make sure to define the views directory
+app.set('views', path.join(__dirname, 'views'));
 
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(session({
+    secret: 'your-secret-key',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false }
+}));
 
 // MongoDB connection
 mongoose.connect('mongodb://localhost:27017/EmployeeDB', {
@@ -28,10 +35,49 @@ mongoose.connect('mongodb://localhost:27017/EmployeeDB', {
     }
 });
 
-// Root route
-app.get('/', (req, res) => {
-    res.render('index'); // Redirect to the employee list page
+// Employee schema and model
+const employeeSchema = new mongoose.Schema({
+    fullName: String,
+    email: String,
+    mobile: String,
+    city: String
 });
+
+// Admin login route
+app.get('/admin/login', (req, res) => {
+    res.render('adminLogin');  // Ensure 'adminLogin.hbs' exists in 'views' folder
+});
+
+app.post('/admin/login', (req, res) => {
+    const { username, password } = req.body;
+
+    // Hardcoded credentials check
+    if (username === 'admin' && password === 'admin123') {
+        req.session.admin = true;
+        res.redirect('/');
+    } else {
+        res.render('adminLogin', { error: 'Invalid credentials' });
+    }
+});
+
+
+// Protected routes (require admin login)
+app.get('/', (req, res) => {
+    if (req.session.admin) {
+        res.render('adminDashboard', { message: 'Welcome ' });
+    } else {
+        res.redirect('/admin/login');
+    }
+});
+
+// Middleware to check if admin is logged in
+function isAdmin(req, res, next) {
+    if (req.session && req.session.admin) {
+        return next();
+    } else {
+        res.redirect('/admin/login');
+    }
+}
 
 // Route to handle form submission
 app.post('/employee', (req, res) => {
@@ -41,7 +87,6 @@ app.post('/employee', (req, res) => {
         mobile: req.body.mobile,
         city: req.body.city
     });
-
     console.log('Form data received:', req.body);
 
     employee.save((err, doc) => {
