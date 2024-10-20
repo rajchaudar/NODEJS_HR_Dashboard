@@ -7,36 +7,53 @@
       rel="stylesheet"
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    />
     <style>
-      body { background-image: url('https://example.com/background-image.jpg');
-      /* Update with your background image URL */ background-size: cover;
-      background-position: center; background-repeat: no-repeat; height: 100vh;
-      margin: 0; display: flex; align-items: center; justify-content: center;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333;
-      } .container { max-width: 1200px; background-color: rgba(255, 255, 255,
-      0.95); padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,
-      0, 0, 0.1); } h2 { text-align: center; margin-bottom: 30px; color:
-      #007bff; font-weight: 700; } table { margin-top: 20px; width: 100%; } th,
-      td { text-align: center; vertical-align: middle; } th { background-color:
-      #007bff; color: white; font-weight: bold; } td { background-color:
-      #95999e; } tr:nth-child(even) td { background-color: #f2f2f2; /* Alternate
-      row color */ } .btn-sm { font-size: 0.875rem; padding: 0.5rem 1rem;
-      border-radius: 50px; } .form-row { margin-bottom: 20px; } .search-box {
-      margin-bottom: 20px; } /* Filter button styles */ #searchBtn { background:
+      body { background: linear-gradient(135deg, #ff7e5f, #feb47b); display:
+      flex; background-size: cover; height: 90vh ; margin: 0; font-family:
+      'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; } .container
+      { max-width: 1350px; background-color: rgba(249, 236, 236, 0.9); padding:
+      30px; border-radius: 10px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+      margin-top: 90px; } h2 { text-align: center; margin-bottom: 30px; color:
+      #3e50b4; font-weight: 700; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); }
+      .table-responsive { max-height: 400px; overflow-y: auto; } table {
+      margin-top: 20px; width: 100%; border-collapse: collapse; } th, td {
+      text-align: center; vertical-align: middle; padding: 15px; } th {
+      background-color: #3e50b4; color: white; font-weight: bold; position:
+      sticky; top: 0; z-index: 10; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+      } td { background-color: #f9f9f9; transition: background-color 0.3s; }
+      tr:nth-child(even) td { background-color: #bdb5b5; } tr:hover td {
+      background-color: #d8ecfb; } .btn-sm { font-size: 0.875rem; padding:
+      0.5rem 1rem; border-radius: 50px; } .form-row { margin-bottom: 20px; }
+      .search-box { margin-bottom: 20px; } #searchBtn { background:
       linear-gradient(45deg, #ff6f61, #de6f9f); border: none; border-radius:
       50px; padding: 12px 20px; color: white; font-size: 1rem; font-weight:
       bold; transition: background 0.3s, transform 0.3s; } #searchBtn:hover {
       background: linear-gradient(45deg, #de6f9f, #ff6f61); transform:
-      translateY(-2px); } /* Styles for the input and select fields */
-      .form-control { border-radius: 50px; padding: 15px; } #searchType {
-      border: 1px solid #007bff; border-radius: 50px; padding: 10px;
-      font-weight: bold; color: #007bff; } #searchType option { font-weight:
-      normal; color: #333; } #searchType:hover { border-color: #0056b3;
-      background-color: #e9ecef; } .text-center { font-style: italic;
-      font-weight: bold; }
+      translateY(-2px); } .form-control { border-radius: 50px; padding: 15px;
+      border: 1px solid #3e50b4; } #searchType { border: 1px solid #3e50b4;
+      border-radius: 50px; padding: 10px; font-weight: bold; color: #3e50b4; }
+      #searchType option { font-weight: normal; color: #333; } #searchType:hover
+      { border-color: #0056b3; background-color: #e9ecef; } .text-center {
+      font-style: italic; font-weight: bold; } .home-btn { background: #3e50b4;
+      color: white; padding: 10px 20px; border-radius: 50px; font-weight: bold;
+      display: inline-flex; align-items: center; text-decoration: none;
+      transition: background-color 0.3s, transform 0.3s; } .home-btn:hover {
+      background-color: #5f6ec2; transform: translateY(-2px); } .home-btn i {
+      margin-right: 8px; }.header { background: #f6f6f6; color: white; padding:
+      10px 0; text-align: left; position: fixed; top: 0; left: 0; right: 0;
+      z-index: 100; }
     </style>
   </head>
   <body>
+    <div class="header">
+      <a href="/" class="home-btn">
+        <i class="fas fa-home"></i>
+        Home
+      </a></div>
     <div class="container">
       <h2>Employee List</h2>
       <div class="form-row search-box">
@@ -46,6 +63,9 @@
             <option value="email">Email</option>
             <option value="mobile">Mobile</option>
             <option value="city">City</option>
+            <option value="salary">Salary</option>
+            <option value="position">Position</option>
+            <option value="employeeId">Employee ID</option>
           </select>
         </div>
         <div class="col-md-6">
@@ -61,48 +81,56 @@
         </div>
       </div>
 
-      <table class="table table-bordered table-hover">
-        <thead>
-          <tr>
-            <th>Full Name</th>
-            <th>Email</th>
-            <th>Mobile</th>
-            <th>City</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="employeeTableBody">
-          {{#if list.length}}
-            {{#each list}}
-              <tr>
-                <td>{{this.fullName}}</td>
-                <td>{{this.email}}</td>
-                <td>{{this.mobile}}</td>
-                <td>{{this.city}}</td>
-                <td>
-                  <a
-                    href="/employee/edit/{{this._id}}"
-                    class="btn btn-primary btn-sm"
-                  >Edit</a>
-                  <a
-                    href="/employee/delete/{{this._id}}"
-                    class="btn btn-danger btn-sm ml-2"
-                  >Delete</a>
-                </td>
-              </tr>
-            {{/each}}
-          {{else}}
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+          <thead>
             <tr>
-              <td colspan="5" class="text-center">No employees found</td>
+              <th>Full Name</th>
+              <th>Email</th>
+              <th>Mobile</th>
+              <th>City</th>
+              <th>Salary</th>
+              <th>Position</th>
+              <th>Employee ID</th>
+              <th>Actions</th>
             </tr>
-          {{/if}}
-        </tbody>
-      </table>
+          </thead>
+          <tbody id="employeeTableBody">
+            {{#if list.length}}
+              {{#each list}}
+                <tr>
+                  <td>{{this.fullName}}</td>
+                  <td>{{this.email}}</td>
+                  <td>{{this.mobile}}</td>
+                  <td>{{this.city}}</td>
+                  <td>{{this.salary}}</td>
+                  <td>{{this.position}}</td>
+                  <td>{{this.employeeId}}</td>
+                  <td>
+                    <a
+                      href="/employee/edit/{{this._id}}"
+                      class="btn btn-primary btn-sm"
+                    >Edit</a>
+                    <a
+                      href="/employee/delete/{{this._id}}"
+                      class="btn btn-danger btn-sm ml-2"
+                    >Delete</a>
+                  </td>
+                </tr>
+              {{/each}}
+            {{else}}
+              <tr>
+                <td colspan="8" class="text-center">No employees found</td>
+              </tr>
+            {{/if}}
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <script>
-      document.getElementById('searchBtn').addEventListener('click', function ()
-      { const searchType = document.getElementById('searchType').value; const
+      document.getElementById('searchInput').addEventListener('input', function
+      () { const searchType = document.getElementById('searchType').value; const
       searchInput = document.getElementById('searchInput').value.toLowerCase();
       const rows = document.querySelectorAll('#employeeTableBody tr');
       rows.forEach(row => { const valueToCheck =
@@ -110,7 +138,8 @@
       if (valueToCheck.includes(searchInput)) { row.style.display = ''; } else {
       row.style.display = 'none'; } }); }); function getColumnIndex(type) {
       switch (type) { case 'fullName': return 1; case 'email': return 2; case
-      'mobile': return 3; case 'city': return 4; } }
+      'mobile': return 3; case 'city': return 4; case 'salary': return 5; case
+      'position': return 6; case 'employeeId': return 7; } }
     </script>
   </body>
 </html>

@@ -1,26 +1,45 @@
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-const employeeSchema = new mongoose.Schema({
+const employeeSchema = new Schema({
+    employeeId: {
+        type: String,
+        required: true,
+        unique: true
+    },
     fullName: {
         type: String,
-        required: 'This field is required.'
+        required: true
     },
     email: {
-        type: String
+        type: String,
+        required: true,
+        match: [/.+\@.+\..+/, 'Please enter a valid email address']
     },
     mobile: {
-        type: String
+        type: String,
+        required: true,
+        match: [/^\d{10}$/, 'Please enter a valid 10-digit mobile number']
     },
     city: {
-        type: String
+        type: String,
+        required: true
+    },
+    position: {
+        type: String,
+        required: true
+    },
+    salary: {
+        type: Number,
+        required: true,
+        min: [0, 'Salary cannot be negative']
+    },
+    department: {
+        type: Schema.Types.ObjectId,
+        ref: 'Department',
+        required: true
     }
 });
 
-// Custom validation for email
-employeeSchema.path('email').validate((val) => {
-    const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return emailRegex.test(val);
-}, 'Invalid e-mail.');
-
-// Export the Employee model
-module.exports = mongoose.model('Employee', employeeSchema);
+const Employee = mongoose.model('Employee', employeeSchema);
+module.exports = Employee;

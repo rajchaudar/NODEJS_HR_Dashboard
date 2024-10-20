@@ -1,14 +1,12 @@
 const mongoose = require('mongoose');
-
-mongoose.connect('mongodb://localhost:27017/EmployeeDB', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-}, (err) => {
-    if (!err) {
-        console.log('MongoDB Connection Succeeded.');
-    } else {
-        console.log('Error in DB connection : ' + err);
+const green = '\x1b[32m';
+async function connectDB() {
+    try {
+        await mongoose.connect('mongodb://localhost:27017/EmployeeDB');
+        console.log(`${green}MongoDB Connection Succeeded.`);
+    } catch (error) {
+        console.error('Error in DB connection: ' + error);
     }
-});
+}
 
-require('./employee.model');
+module.exports = connectDB;

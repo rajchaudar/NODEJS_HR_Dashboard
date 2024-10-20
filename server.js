@@ -1,10 +1,21 @@
+// Import necessary modules
 const express = require('express');
 const session = require('express-session');
 const mongoose = require('mongoose');
+const os = require('os');
 const bodyParser = require('body-parser');
-const exphbs = require('hbs');
+const hbs = require('hbs');
 const path = require('path');
+require('dotenv').config();
+const Admin = require('./models/admin');
+const bcrypt = require('bcryptjs');
 const Employee = require('./models/employee.model');
+const connectDB = require('./models/db');
+const router = express.Router();
+const Department = require('./models/department');
+const Promotion = require('./models/Promotion');
+
+connectDB();
 
 const app = express();
 const PORT = 3001;
@@ -12,59 +23,86 @@ const PORT = 3001;
 // Set Handlebars as the view engine
 app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'views'));
+app.use(express.static(path.join(__dirname, 'public')));
+hbs.registerHelper('json', function (context) {
+    return JSON.stringify(context);
+});
+
+
+// Register the router for the promotion routes
+app.use('/promotion', router);
+
 
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(session({
-    secret: 'your-secret-key',
+    secret: process.env.SESSION_SECRET || 'your-secret-key',
     resave: false,
     saveUninitialized: true,
     cookie: { secure: false }
 }));
 
-// MongoDB connection
-mongoose.connect('mongodb://localhost:27017/EmployeeDB', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useFindAndModify: false // Add this line
-}, (err) => {
-    if (!err) {
-        console.log('MongoDB Connection Succeeded.');
-    } else {
-        console.log('Error in DB connection: ' + err);
-    }
+// Route to render the admin creation form
+app.get('/admin/create', (req, res) => {
+    res.render('createAdmin');
 });
 
-// Employee schema and model
-const employeeSchema = new mongoose.Schema({
-    fullName: String,
-    email: String,
-    mobile: String,
-    city: String
-});
-
-// Admin login route
-app.get('/admin/login', (req, res) => {
-    res.render('adminLogin');  // Ensure 'adminLogin.hbs' exists in 'views' folder
-});
-
-app.post('/admin/login', (req, res) => {
+// Route to create admin credentials
+app.post('/admin/create', async (req, res) => {
     const { username, password } = req.body;
 
-    // Hardcoded credentials check
-    if (username === 'admin' && password === 'admin123') {
-        req.session.admin = true;
-        res.redirect('/');
-    } else {
-        res.render('adminLogin', { error: 'Invalid credentials' });
+    try {
+        const existingAdmin = await Admin.findOne({ username });
+        if (existingAdmin) {
+            return res.render('adminLogin', { error: 'Admin already exists' });
+        }
+
+        const admin = new Admin({ username, password });
+        await admin.save();
+        // console.log('Admin created:', admin);
+        res.redirect('/admin/login');
+    } catch (error) {
+        console.error('Error creating admin:', error);
+        res.status(500).send('Server Error');
     }
 });
 
+// Admin login route (GET)
+app.get('/admin/login', (req, res) => {
+    res.render('adminLogin');
+});
+
+// Admin login route (POST)
+app.post('/admin/login', async (req, res) => {
+    const { username, password } = req.body; // Get username and password from the request body
+
+    try {
+        // Fetch the admin user from the database
+        const admin = await Admin.findOne({ username });
+
+        if (!admin) {
+            return res.render('adminLogin', { error: 'Invalid credentials' }); // Admin not found
+        }
+
+        // Compare entered password with stored hashed password
+        const isMatch = await bcrypt.compare(password, admin.password);
+
+        if (isMatch) {
+            req.session.admin = true; // Set admin session
+            res.redirect('/'); // Redirect to dashboard after successful login
+        } else {
+            res.render('adminLogin', { error: 'Invalid credentials' }); // Invalid password
+        }
+    } catch (error) {
+        console.error('Error during admin login:', error);
+        res.render('adminLogin', { error: 'Something went wrong, please try again' });
+    }
+});
 
 // Protected routes (require admin login)
 app.get('/', (req, res) => {
     if (req.session.admin) {
-        res.render('adminDashboard', { message: 'Welcome ' });
+        res.render('adminDashboard', { message: 'Welcome Admin' });
     } else {
         res.redirect('/admin/login');
     }
@@ -80,32 +118,46 @@ function isAdmin(req, res, next) {
 }
 
 // Route to handle form submission
-app.post('/employee', (req, res) => {
+app.post('/employee', async (req, res) => {
     const employee = new Employee({
+        employeeId: req.body.employeeId,
         fullName: req.body.fullName,
         email: req.body.email,
         mobile: req.body.mobile,
-        city: req.body.city
+        city: req.body.city,
+        salary: req.body.salary,
+        position: req.body.position,
+        department: req.body.department
     });
     console.log('Form data received:', req.body);
 
-    employee.save((err, doc) => {
-        if (!err) {
-            console.log('Employee saved successfully');
-            res.redirect('/employee/list');
-        } else {
-            console.error('Error during record insertion:', err);
-            res.render('employee/addOrEdit', {
-                viewTitle: 'Insert Employee',
-                employee: employee,
-                emailError: err.email ? err.email.message : ''
-            });
-        }
-    });
+    try {
+        await employee.save();
+        console.log('Employee saved successfully');
+        res.redirect('/employee/list');
+    } catch (err) {
+        console.error('Error during record insertion:', err);
+        res.render('employee/addOrEdit', {
+            viewTitle: 'Insert Employee',
+            employee: employee,
+            emailError: err.email ? err.email.message : ''
+        });
+    }
+});
+
+// Example: Fetching departments from a database (e.g., MongoDB)
+app.get('/create-employee', async (req, res) => {
+    try {
+        const departments = await Department.find(); // Adjust this according to your model
+        res.render('create-employee', { viewTitle: 'Create Employee', departments });
+    } catch (error) {
+        console.error("Error fetching departments:", error);
+        res.status(500).send("Internal Server Error");
+    }
 });
 
 // Route to display employee list with filtering/searching functionality
-app.get('/', async (req, res) => {
+app.get('/employee/list', async (req, res) => {
     const { filterBy, search } = req.query;
 
     let filterCriteria = {};
@@ -124,15 +176,18 @@ app.get('/', async (req, res) => {
             case 'city':
                 filterCriteria = { city: { $regex: new RegExp(search, 'i') } };
                 break;
+            case 'position':
+                filterCriteria = { position: { $regex: new RegExp(search, 'i') } };
+                break;
             default:
-                filterCriteria = {}; // No filter, show all
+                filterCriteria = {};
                 break;
         }
     }
 
     try {
         const employees = await Employee.find(filterCriteria);
-        res.render('index', {
+        res.render('employee/list', {
             list: employees,
             filterBy: filterBy || 'all',
             search: search || ''
@@ -143,73 +198,226 @@ app.get('/', async (req, res) => {
     }
 });
 
-// Route to display employee list
-app.get('/employee/list', (req, res) => {
-    Employee.find((err, docs) => {
-        if (!err) {
-            res.render('employee/list', {
-                list: docs
-            });
-        } else {
-            console.error('Error fetching employees:', err);
-        }
-    });
-});
-
 // Route to display the edit form for a specific employee
-app.get('/employee/edit/:id', (req, res) => {
-    Employee.findById(req.params.id, (err, employee) => {
-        if (!err) {
+app.get('/employee/edit/:id', isAdmin, async (req, res) => {
+    try {
+        const employee = await Employee.findById(req.params.id);
+        if (employee) {
             res.render('employee/addOrEdit', {
                 viewTitle: 'Edit Employee',
                 employee: employee
             });
         } else {
-            console.error('Error fetching employee:', err);
-            res.status(500).send('Error fetching employee data');
+            res.status(404).send('Employee not found');
         }
-    });
+    } catch (err) {
+        console.error('Error fetching employee:', err);
+        res.status(500).send('Error fetching employee data');
+    }
 });
 
 // Route to update an existing employee
-app.post('/employee/update/:id', (req, res) => {
-    Employee.findByIdAndUpdate(req.params.id, {
-        fullName: req.body.fullName,
-        email: req.body.email,
-        mobile: req.body.mobile,
-        city: req.body.city
-    }, { new: true }, (err, doc) => {
-        if (!err) {
+app.post('/employee/update/:id', isAdmin, async (req, res) => {
+    try {
+        const updatedEmployee = await Employee.findByIdAndUpdate(req.params.id, {
+            employeeId: req.body.employeeId,
+            fullName: req.body.fullName,
+            email: req.body.email,
+            mobile: req.body.mobile,
+            city: req.body.city,
+            position: req.body.position,
+            salary: req.body.salary
+        }, { new: true });
+
+        if (updatedEmployee) {
             console.log('Employee updated successfully');
             res.redirect('/employee/list');
         } else {
-            console.error('Error during employee update:', err);
-            res.status(500).send('Error updating employee data');
+            res.status(404).send('Employee not found');
         }
-    });
+    } catch (err) {
+        console.error('Error during employee update:', err);
+        res.status(500).send('Error updating employee data');
+    }
 });
 
 // Route to delete an employee
-app.get('/employee/delete/:id', (req, res) => {
-    Employee.findByIdAndRemove(req.params.id, (err) => {
-        if (!err) {
-            console.log('Employee deleted successfully');
-            res.redirect('/employee/list');
-        } else {
-            console.error('Error during deletion:', err);
+app.get('/employee/delete/:id', isAdmin, async (req, res) => {
+    const employeeId = req.params.id; // Define employeeId from route params
+
+    try {
+        await Promotion.deleteMany({ employee: employeeId });
+
+        const employee = await Employee.findByIdAndDelete(employeeId);
+
+        if (!employee) {
+            console.log('No employee found with that ID');
+            return res.status(404).send('Employee not found');
         }
-    });
+
+        console.log(`Employee ${employee.fullName} deleted successfully.`);
+        res.redirect('/employee/list?success=true'); // Redirect with success message
+    } catch (err) {
+        console.error('Error during deletion: ', err);
+        res.status(500).send('Error deleting employee');
+    }
 });
 
 // Route to render the employee creation form
-app.get('/employee', (req, res) => {
+app.get('/employee', isAdmin, (req, res) => {
     res.render('employee/addOrEdit', {
         viewTitle: 'Insert Employee',
         employee: {}
     });
 });
 
+// Route to get all departments
+app.get('/departments', async (req, res) => {
+    try {
+        const departments = await Department.find();
+        res.json(departments); // Send the departments as JSON
+    } catch (error) {
+        console.error('Error fetching departments:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+
+app.get('/employee/:id/edit', async (req, res) => {
+    const employee = await Employee.findById(req.params.id).populate('department');
+    const departments = await Department.find(); // Fetch departments
+    res.render('employee/addOrEdit', { employee, departments, viewTitle: 'Edit Employee' });
+});
+
+
+// Create a new department
+router.post('/department/create', async (req, res) => {
+    const { name } = req.body;
+
+    try {
+        const department = new Department({ name });
+        await department.save();
+        res.status(201).json(department);
+    } catch (error) {
+        res.status(500).json({ error: 'Error creating department' });
+    }
+});
+
+
+// Create a new employee and assign to a department
+router.post('/employee/create', async (req, res) => {
+    const { name, position, departmentId } = req.body;
+
+    try {
+        const employee = new Employee({ name, position, department: departmentId });
+        await employee.save();
+
+        // Update department's employee count
+        await Department.findByIdAndUpdate(departmentId, { $inc: { employeeCount: 1 } });
+
+        res.status(201).json(employee);
+    } catch (error) {
+        res.status(500).json({ error: 'Error creating employee' });
+    }
+});
+
+
+// Parse JSON body
+app.use(express.json());  // Make sure this line is present
+
+app.post('/promotion/create', async (req, res) => {
+    const { employeeId, previousPosition, newPosition } = req.body;
+
+    try {
+        // Find and update the employee's position
+        const employee = await Employee.findById(employeeId);
+        if (!employee) {
+            return res.status(404).json({ message: 'Employee not found' });
+        }
+
+        // Log the promotion
+        const promotion = new Promotion({
+            employee: employeeId,
+            previousPosition,
+            newPosition,
+            promotionDate: new Date(), // Or your desired date logic
+        });
+
+        await promotion.save(); // Save the promotion to the database
+
+        // Update the employee's position
+        employee.position = newPosition;
+        await employee.save(); // Save the updated employee
+
+        return res.status(200).json({ message: 'Promotion logged successfully' });
+    } catch (error) {
+        console.error('Error logging promotion:', error);
+        return res.status(500).json({ message: 'Error logging promotion' });
+    }
+});
+
+
+// HR Dashboard Route
+app.get('/hr-dashboard', async (req, res) => {
+    try {
+        // Fetch all departments with employee count
+        const departments = await Department.find().lean();
+        const departmentEmployeeCounts = await Employee.aggregate([
+            { $group: { _id: '$department', count: { $sum: 1 } } }
+        ]);
+
+        departments.forEach(department => {
+            const countData = departmentEmployeeCounts.find(d => d._id && d._id.toString() === department._id.toString());
+            department.employeeCount = countData ? countData.count : 0;
+        });
+
+        const employees = await Employee.find().populate('department').lean();
+
+        const promotions = await Promotion.find().populate('employee').lean();
+
+        res.render('hr-dashboard', {
+            departments,
+            employees,
+            promotions
+        });
+    } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+        res.status(500).send('Server Error');
+    }
+});
+
+
+app.get('/employee/:id', async (req, res) => {
+    const employeeId = req.params.id;
+    try {
+        const employee = await Employee.findById(employeeId).populate('department');
+        if (!employee) {
+            return res.status(404).json({ error: 'Employee not found' });
+        }
+        res.json({ position: employee.position, department: employee.department });
+    } catch (error) {
+        console.error('Error fetching employee:', error);
+        res.status(500).json({ error: 'Internal server error', details: error });
+    }
+});
+
+// Function to get local IP address
+function getLocalIPAddress() {
+    const interfaces = os.networkInterfaces();
+    for (const iface of Object.values(interfaces)) {
+        for (const details of iface) {
+            if (details.family === 'IPv4' && !details.internal) {
+                return details.address;
+            }
+        }
+    }
+    return 'localhost';
+}
+
 // Start the server
 app.listen(PORT, () => {
+    const localIPAddress = getLocalIPAddress(); // Get local IP address
     console.log(`Server is running on port ${PORT}`);
+    console.log(`Access it at http://localhost:${PORT}`);
+    console.log(`Access it on local network at http://${localIPAddress}:${PORT}`);
 });

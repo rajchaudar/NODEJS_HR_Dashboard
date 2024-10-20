@@ -1,0 +1,381 @@
+<head>
+  <link rel="stylesheet"
+    href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+  <script
+    src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <style>
+    body {
+      background: url('https://res.cloudinary.com/dc4dywdvb/image/upload/v1727801896/a4d640bb7be96721353eea286599ebe77a1dcf3e_ibkchq.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: #030303;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      flex-direction: column;
+    }
+   .header {
+  background: #6a6969;
+  color: rgb(6, 3, 3);
+  padding: 10px 0; 
+  text-align: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
+ .home {
+      background-color: rgba(40, 62, 234, 0.9); /* Add transparency */
+      color: #fff;
+      padding: 10px 20px;
+      text-align: left;
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      z-index: 101; /* Make sure it's layered above other elements */
+      border-radius: 5px;
+    }
+    .home a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+    } 
+
+    .container {
+      background-color: rgba(255, 255, 255, 0.9); /* White background with transparency */
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      overflow-y: auto;
+      margin-top: 70px; /* Add margin to avoid header overlap */
+      transition: all 0.3s ease; /* Smooth transitions */
+    }
+    .alert {
+      margin-top: 20px;
+      transition: opacity 0.5s ease;
+    }
+    h2 {
+      color: #000000; /* Bootstrap primary color */
+      margin-top: 20px;
+    }
+    .card {
+      border-radius: 10px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 8px rgb(18, 44, 214);
+    }
+    .table {
+      background-color: #ffffff;
+    }
+    .table-striped tbody tr:hover {
+      background-color: #f1f1f1;
+    }
+    .form-control {
+      border-radius: 5px;
+    }
+    .btn-primary {
+      background: linear-gradient(to right, #1b0f8dd2, #7a1e1ee2); color: white;
+      border: none;
+      transition: background-color 0.3s; /* Smooth color transition */
+    }
+    .btn-primary:hover {
+      background-color: #0056b3;
+    }
+    .alert {
+      display: none;
+    }
+    .spinner-border {
+      display: none;
+    }
+    .scrollable-card {
+      max-height: 300px; /* Adjust height as needed */
+      overflow-y: auto;
+      background-color: rgba(222, 17, 17, 0.209);
+    }
+  </style>
+</head>
+
+<body>
+  <a class="home" href="/" style="color: white; text-decoration: none;">Home</a>
+  <h1 class="header">HR Dashboard</h1>
+
+  <div class="container">
+    <div id="alertMessage" class="alert alert-success" role="alert">
+      Promotion logged successfully!
+    </div>
+    <div id="errorMessage" class="alert alert-danger" role="alert"></div>
+
+    <div class="row">
+      <div class="col-md-6">
+        <div class="card mb-4">
+          <div class="card-header"
+            style="background-color: rgb(123, 122, 122, 0.513);">
+            <h2>Departments</h2>
+          </div>
+          <div class="card-body scrollable-card">
+            <table class="table table-striped">
+              <thead
+                style="background: linear-gradient(to right, #1b0f8dd2, #7a1e1ee2); color: white;">
+                <tr>
+                  <th>Department Name</th>
+                  <th>Employee Count</th>
+                </tr>
+              </thead>
+              <tbody>
+                {{#each departments}}
+                <tr>
+                  <td>{{this.name}}</td>
+                  <td>{{this.employeeCount}}</td>
+                </tr>
+                {{/each}}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="card mb-4">
+          <div class="card-header"
+            style="background-color: rgb(123, 122, 122, 0.513);">
+            <h2>Promotion Tracking</h2>
+          </div>
+          <div class="card-body scrollable-card">
+            <table class="table table-striped">
+              <thead
+                style="background: linear-gradient(to right, #1b0f8dd2, #7a1e1ee2); color: white;">
+                <tr>
+                  <tr>
+                    <th>Employee Name</th>
+                    <th>Previous Position</th>
+                    <th>New Position</th>
+                    <th>Promotion Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {{#each promotions}}
+                  <tr>
+                    <td>{{this.employee.fullName}}</td>
+                    <td>{{this.previousPosition}}</td>
+                    <td>{{this.newPosition}}</td>
+                    <td>{{this.promotionDate}}</td>
+                  </tr>
+                  {{/each}}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div
+          class="card-header d-flex justify-content-between align-items-center"
+          style="background-color: rgba(123, 122, 122, 0.513); ">
+          <h2>Employees</h2>
+          <div class="form-row search-box">
+            <div class="col-md-3">
+              <select id="searchType" class="form-control">
+                <option value="position">Position</option>
+                <option value="department">Department</option>
+                <option value="hasPosition">Has Position</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <input
+                type="text"
+                id="searchInput"
+                class="form-control"
+                placeholder="Search by selected option..." />
+            </div>
+            <div class="col-md-3">
+              <button id="searchBtn" class="btn btn-block"
+                style="background: linear-gradient(to right, #1b0f8dd2, #7a1e1ee2); color: white;">
+                <tr>Filter</button>
+              </div>
+            </div>
+          </div>
+          <div class="card-body scrollable-card">
+            <table class="table table-striped" id="employeeTable">
+              <thead
+                style="background: linear-gradient(to right, #1b0f8dd2, #7a1e1ee2); color: white;">
+                <tr>
+                  <tr>
+                    <th>Employee Name</th>
+                    <th>Position</th>
+                    <th>Department</th>
+                    <th>Has Position</th>
+                  </tr>
+                </thead>
+                <tbody id="employeeTableBody">
+                  {{#each employees}}
+                  <tr>
+                    <td>{{this.fullName}}</td>
+                    <td>{{this.position}}</td>
+                    <td>{{#if
+                      this.department}}{{this.department.name}}{{else}}N/A{{/if}}</td>
+                    <td>{{#if this.position}}Yes{{else}}No{{/if}}</td>
+                  </tr>
+                  {{/each}}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card mb-4">
+            <div class="card-header"
+              style="background: linear-gradient(to right, #1b0f8dd2, #7a1e1ee2); color: white;">
+              <tr>
+                <h3>Add New Promotion</h3>
+              </div>
+              <div class="card-body">
+                <form id="addPromotionForm" onsubmit="addPromotion(event)">
+                  <div class="form-group">
+                    <label for="promotionEmployee">Select Employee:</label>
+                    <select id="promotionEmployee" class="form-control" required
+                      onchange="fetchCurrentPosition()">
+                      {{#each employees}}
+                      <option value="{{this._id}}">{{this.fullName}}</option>
+                      {{/each}}
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="previousPosition">Previous Position:</label>
+                    <input type="text" id="previousPosition"
+                      class="form-control"
+                      placeholder="Previous Position" required readonly />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="newPosition">New Position:</label>
+                    <input type="text" id="newPosition" class="form-control"
+                      placeholder="New Position" required />
+                  </div>
+
+                  <button type="submit" id="submitPromotion"
+                    class="btn btn-primary">Log
+                    Promotion</button>
+                  <div id="loadingSpinner" class="spinner-border text-primary"
+                    role="status">
+                    <span class="sr-only">Loading...</span>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <script>
+  document.getElementById('searchInput').addEventListener('input', function () {
+      const searchType = document.getElementById('searchType').value;
+      const searchInput = document.getElementById('searchInput').value.toLowerCase();
+      const rows = document.querySelectorAll('#employeeTableBody tr');
+
+      rows.forEach(row => {
+        const cells = row.getElementsByTagName('td');
+        let match = false;
+        if (searchType === 'position') {
+          match = cells[1].textContent.toLowerCase().includes(searchInput);
+        } else if (searchType === 'department') {
+          match = cells[2].textContent.toLowerCase().includes(searchInput);
+        } else if (searchType === 'hasPosition') {
+          match = cells[3].textContent.toLowerCase().includes(searchInput);
+        }
+        row.style.display = match ? '' : 'none';
+      });
+    });    
+ 
+
+    async function addPromotion(event) {
+  event.preventDefault();
+  const employeeId = document.getElementById('promotionEmployee').value;
+  const previousPosition = document.getElementById('previousPosition').value;
+  const newPosition = document.getElementById('newPosition').value;
+
+  if (!newPosition) {
+    displayError('New Position cannot be empty.');
+    return;
+  }
+
+  try {
+    document.getElementById('loadingSpinner').style.display = 'inline-block';
+    const response = await fetch('/promotion/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ employeeId, previousPosition, newPosition }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      displaySuccess(data.message || 'Promotion logged successfully!');
+      document.getElementById('addPromotionForm').reset();
+      setTimeout(() => {
+        window.location.reload(); 
+      }, 3000); 
+    } else {
+      const errorText = await response.text();
+      displayError(errorText || 'Failed to log promotion.');
+    }
+  } catch (error) {
+    displayError('Network error. Please check the server status.');
+  } finally {
+    document.getElementById('loadingSpinner').style.display = 'none';
+  }
+}
+
+    async function fetchCurrentPosition() {
+      const employeeId = document.getElementById('promotionEmployee').value;
+
+      try {
+        const response = await fetch(`/employee/${employeeId}`);
+        if (response.ok) {
+          const employee = await response.json();
+          document.getElementById('previousPosition').value = employee.position || 'N/A';
+        }
+      } catch (error) {
+        displayError('Failed to fetch employee data.');
+      }
+    }
+
+    function displaySuccess(message) {
+      const alertMessage = document.getElementById('alertMessage');
+      alertMessage.textContent = message;
+      alertMessage.style.display = 'block';
+      setTimeout(() => {
+        alertMessage.style.display = 'none';
+      }, 3000);
+    }
+
+    function displayError(message) {
+      const errorMessage = document.getElementById('errorMessage');
+      errorMessage.textContent = message;
+      errorMessage.style.display = 'block';
+      setTimeout(() => {
+        errorMessage.style.display = 'none';
+      }, 3000);
+    }
+    $(document).ready(function() { 
+      $('#searchBtn').click(function() {
+        const searchType = $('#searchType').val();
+        const searchInput = $('#searchInput').val().toLowerCase();
+        $('#employeeTableBody tr').filter(function() {
+          $(this).toggle($(this).children('td').filter(function() {
+            if (searchType === 'position') {
+              return $(this).index() === 1 && $(this).text().toLowerCase().includes(searchInput);
+            } else if (searchType === 'department') {
+              return $(this).index() === 2 && $(this).text().toLowerCase().includes(searchInput);
+            } else if (searchType === 'hasPosition') {
+              return $(this).index() === 3 && $(this).text().toLowerCase().includes(searchInput);
+            }
+          }).length > 0);
+        });
+      });
+    }); 
+  </script>
+        </body>

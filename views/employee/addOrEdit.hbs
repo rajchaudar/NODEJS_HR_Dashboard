@@ -8,66 +8,124 @@
       rel="stylesheet"
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    />
     <style>
-      body {
-        background-image: url('https://res.cloudinary.com/dc4dywdvb/image/upload/v1727377999/unnamed_f4ciap.jpg');
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        height: 100vh;
-        margin: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      }
+    body {
+  background-image: url('https://res.cloudinary.com/dc4dywdvb/image/upload/v1727801896/a4d640bb7be96721353eea286599ebe77a1dcf3e_ibkchq.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  display: flex;
+  flex-direction: column;
+}
 
-      .container {
-        max-width: 600px;
-        background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent background */
-        padding: 30px;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      }
+.header {
+  background: #f6f6f6;
+  color: white;
+  padding: 10px 0;
+  text-align: left;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
 
-      h2 {
-        text-align: center;
-        margin-bottom: 30px;
-        color: #333;
-        font-weight: 700;
-      }
+.container {
+  max-width: 600px;
+  background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent background */
+  padding: 50px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 60px; /* Space for fixed header */
+  overflow-y: auto;
+  max-height: calc(100vh - 100px); /* Make the form scrollable */
+}
 
-      label {
-        font-weight: bold;
-      }
+h2 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #333;
+  font-weight: 700;
+}
 
-      .form-control {
-        border-radius: 50px;
-        padding: 15px;
-        font-size: 1rem;
-        margin-bottom: 20px;
-      }
+label {
+  font-weight: bold;
+}
 
-      .btn-primary {
-        background-color: #007bff;
-        border: none;
-        padding: 12px 30px;
-        border-radius: 50px;
-        width: 100%;
-        font-size: 1.2rem;
-        font-weight: bold;
-      }
+.form-control {
+  border-radius: 50px;
+  padding: 15px;
+  font-size: 1rem;
+  margin-bottom: 20px;
+}
 
-      .btn-primary:hover {
-        background-color: #0056b3;
-      }
+.btn-primary {
+  background-color: #007bff;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 50px;
+  width: 100%;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
 
-      .form-group {
-        margin-bottom: 20px;
-      }
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+
+.home-btn {
+  background: #3e50b4;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 50px;
+  font-weight: bold;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  transition: background-color 0.3s, transform 0.3s;
+  margin-left: 20px; /* Added margin to move button to the right */
+}
+
+.home-btn:hover {
+  background-color: #5f6ec2;
+  transform: translateY(-2px);
+}
+
+.home-btn i {
+  margin-right: 10px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.header {
+  background: #f6f6f6;
+  color: white;
+  padding: 5px 0;
+  border-radius: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
     </style>
   </head>
   <body>
+     <div class="header">
+      <a href="/" class="home-btn">
+        <i class="fas fa-home"></i>
+        Home
+      </a></div>
     <div class="container">
       <h2>{{viewTitle}}</h2>
       
@@ -121,6 +179,51 @@
             required
           />
         </div>
+
+        <!-- New fields: Salary, Position, Employee ID -->
+        <div class="form-group">
+          <label for="salary">Salary</label>
+          <input
+            type="number"
+            class="form-control"
+            id="salary"
+            name="salary"
+            value="{{employee.salary}}"
+            placeholder="Enter salary"
+            required
+          />
+        <div class="form-group">
+    <label for="department">Department</label>
+    <select id="department" class="form-control" name="department" required>
+        <option value="">Select Department</option>
+    </select>
+</div>
+
+        <div class="form-group">
+          <label for="position">Position</label>
+          <input
+            type="text"
+            class="form-control"
+            id="position"
+            name="position"
+            value="{{employee.position}}"
+            placeholder="Enter position"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="employeeId">Employee ID</label>
+          <input
+            type="text"
+            class="form-control"
+            id="employeeId"
+            name="employeeId"
+            value="{{employee.employeeId}}"
+            placeholder="Enter employee ID"
+            required
+          />
+        </div>
+
         <button type="submit" class="btn btn-primary">
           {{#if employee._id}}Update{{else}}Create{{/if}}
         </button>
@@ -128,3 +231,30 @@
     </div>
   </body>
 </html>
+<script>
+    async function fetchAllDepartments() {
+        try {
+            const response = await fetch('/departments');
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const departments = await response.json();
+
+            const departmentSelect = document.getElementById('department');
+            departmentSelect.innerHTML = '<option value="">Select Department</option>'; // Clear existing options
+
+            // Populate the select element with department options
+            departments.forEach(department => {
+                const option = document.createElement('option');
+                option.value = department._id;
+                option.textContent = department.name;
+                departmentSelect.appendChild(option);
+            });
+        } catch (error) {
+            console.error('Error fetching departments:', error);
+        }
+    }
+
+    // Call the function to fetch departments when the page loads
+    window.onload = fetchAllDepartments;
+</script>
