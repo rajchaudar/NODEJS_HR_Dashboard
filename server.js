@@ -226,7 +226,8 @@ app.post('/employee/update/:id', isAdmin, async (req, res) => {
             mobile: req.body.mobile,
             city: req.body.city,
             position: req.body.position,
-            salary: req.body.salary
+            salary: req.body.salary,
+            department: req.body.department,
         }, { new: true });
 
         if (updatedEmployee) {

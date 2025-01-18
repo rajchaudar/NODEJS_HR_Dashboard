@@ -111,10 +111,12 @@
                       href="/employee/edit/{{this._id}}"
                       class="btn btn-primary btn-sm"
                     >Edit</a>
-                    <a
-                      href="/employee/delete/{{this._id}}"
-                      class="btn btn-danger btn-sm ml-2"
-                    >Delete</a>
+                     <button
+            class="btn btn-danger btn-sm ml-2"
+            onclick="confirmDelete('{{this._id}}')"
+          >
+            Delete
+          </button>
                   </td>
                 </tr>
               {{/each}}
@@ -129,6 +131,12 @@
     </div>
 
     <script>
+      function confirmDelete(employeeId) {
+    const confirmed = confirm('Are you sure you want to delete this employee?');
+    if (confirmed) {
+      window.location.href = `/employee/delete/${employeeId}`;
+    }
+  }
       document.getElementById('searchInput').addEventListener('input', function
       () { const searchType = document.getElementById('searchType').value; const
       searchInput = document.getElementById('searchInput').value.toLowerCase();
