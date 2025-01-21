@@ -126,10 +126,18 @@ app.post('/employee', async (req, res) => {
         mobile: req.body.mobile,
         city: req.body.city,
         salary: req.body.salary,
-        position: req.body.position,
+        position: req.body.position || '',
         department: req.body.department
-    });
-    console.log('Form data received:', req.body);
+    });console.log('Form data received:', req.body);
+
+    const existingEmployee = await Employee.findOne({ employeeId: req.body.employeeId });
+    if (existingEmployee) {
+        return res.render('employee/addOrEdit', {
+            viewTitle: 'Insert Employee',
+            errorMessage: 'Duplicate employee ID',
+            employee: req.body 
+        });
+    }
 
     try {
         await employee.save();
@@ -264,7 +272,7 @@ app.get('/employee/delete/:id', isAdmin, async (req, res) => {
     }
 });
 
-// Route to render the employee creation form
+//Route to render the employee creation form
 app.get('/employee', isAdmin, (req, res) => {
     res.render('employee/addOrEdit', {
         viewTitle: 'Insert Employee',
@@ -291,36 +299,36 @@ app.get('/employee/:id/edit', async (req, res) => {
 });
 
 
-// Create a new department
-router.post('/department/create', async (req, res) => {
-    const { name } = req.body;
+// // Create a new department
+// router.post('/department/create', async (req, res) => {
+//     const { name } = req.body;
 
-    try {
-        const department = new Department({ name });
-        await department.save();
-        res.status(201).json(department);
-    } catch (error) {
-        res.status(500).json({ error: 'Error creating department' });
-    }
-});
+//     try {
+//         const department = new Department({ name });
+//         await department.save();
+//         res.status(201).json(department);
+//     } catch (error) {
+//         res.status(500).json({ error: 'Error creating department' });
+//     }
+// });
 
 
 // Create a new employee and assign to a department
-router.post('/employee/create', async (req, res) => {
-    const { name, position, departmentId } = req.body;
+// router.post('/employee/create', async (req, res) => {
+//     const { name, position, departmentId } = req.body;
 
-    try {
-        const employee = new Employee({ name, position, department: departmentId });
-        await employee.save();
+//     try {
+//         const employee = new Employee({ name, position, department: departmentId });
+//         await employee.save();
 
-        // Update department's employee count
-        await Department.findByIdAndUpdate(departmentId, { $inc: { employeeCount: 1 } });
+//         // Update department's employee count
+//         await Department.findByIdAndUpdate(departmentId, { $inc: { employeeCount: 1 } });
 
-        res.status(201).json(employee);
-    } catch (error) {
-        res.status(500).json({ error: 'Error creating employee' });
-    }
-});
+//         res.status(201).json(employee);
+//     } catch (error) {
+//         res.status(500).json({ error: 'Error creating employee' });
+//     }
+// });
 
 
 // Parse JSON body

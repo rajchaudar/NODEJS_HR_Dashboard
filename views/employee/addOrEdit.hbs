@@ -129,6 +129,11 @@ label {
     <div class="container">
       <h2>{{viewTitle}}</h2>
       
+            {{#if errorMessage}}
+        <div class="alert alert-danger">
+          {{errorMessage}}
+        </div>
+      {{/if}}
       <!-- Conditional form action for both create and update -->
       <form action="/employee{{#if employee._id}}/update/{{employee._id}}{{/if}}" method="POST">
         <div class="form-group">
