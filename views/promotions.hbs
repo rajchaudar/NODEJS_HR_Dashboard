@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Promotion Approval</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #8f8f97;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 50px auto;
+      padding: 20px;
+      background-color: #d4c7c7;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    h2 {
+      text-align: center;
+      color: #333333;
+      margin-bottom: 20px;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+
+    .table th, .table td {
+      border: 1px solid #dddddd;
+      text-align: left;
+      padding: 8px;
+    }
+
+    .table th {
+      background: linear-gradient(to right, #1b0f8d, #7a1e1e);
+      color: white;
+    }
+
+    .table tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 0.9em;
+    }
+
+    .badge-success {
+      background-color: #28a745;
+      color: white;
+    }
+
+    .badge-danger {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .badge-warning {
+      background-color: #ffc107;
+      color: black;
+    }
+
+    .btn {
+      padding: 5px 10px;
+      margin: 2px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9em;
+    }
+
+    .btn-success {
+      background-color: #28a745;
+      color: white;
+    }
+
+    .btn-danger {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .btn-success:hover, .btn-danger:hover {
+      opacity: 0.8;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Promotion Tracking</h2>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Employee Name</th>
+          <th>Previous Position</th>
+          <th>New Position</th>
+          <th>Promotion Date</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each promotions}}
+        <tr>
+          <td>{{this.employee.fullName}}</td>
+          <td>{{this.previousPosition}}</td>
+          <td>{{this.newPosition}}</td>
+          <td>{{this.promotionDate}}</td>
+          <td>
+            <span class="badge {{#if (eq this.status 'Approved')}}badge-success{{else if (eq this.status 'Rejected')}}badge-danger{{else}}badge-warning{{/if}}">
+              {{this.status}}
+            </span>
+          </td>
+          <td>
+            {{#if (eq this.status 'Pending')}}
+            <button class="btn btn-success approve-btn" data-id="{{this._id}}">Approve</button>
+            <button class="btn btn-danger reject-btn" data-id="{{this._id}}">Reject</button>
+            {{else}}
+            <span>No Actions</span>
+            {{/if}}
+          </td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Approve Promotion
+      document.querySelectorAll('.approve-btn').forEach(button => {
+        button.addEventListener('click', async (e) => {
+          const promotionId = e.target.dataset.id;
+          await updatePromotionStatus(promotionId, 'Approved');
+        });
+      });
+
+      // Reject Promotion
+      document.querySelectorAll('.reject-btn').forEach(button => {
+        button.addEventListener('click', async (e) => {
+          const promotionId = e.target.dataset.id;
+          await updatePromotionStatus(promotionId, 'Rejected');
+        });
+      });
+
+      async function updatePromotionStatus(id, status) {
+        try {
+          const response = await fetch(`/update-promotion-status/${id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status }),
+          });
+
+          const result = await response.json();
+          if (response.ok) {
+            alert(result.message);
+            window.location.reload(); // Reload to update UI
+          } else {
+            alert('Failed to update status: ' + result.error);
+          }
+        } catch (error) {
+          console.error('Error updating promotion status:', error);
+        }
+      }
+    });
+  </script>
+</body>
+</html>

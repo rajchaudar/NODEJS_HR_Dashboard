@@ -14,11 +14,26 @@ const connectDB = require('./models/db');
 const router = express.Router();
 const Department = require('./models/department');
 const Promotion = require('./models/Promotion');
+// const handlebars = require('handlebars');
 
 connectDB();
 
 const app = express();
 const PORT = 3001;
+
+hbs.registerHelper('eq', function(a, b) {
+    return a === b;
+  });
+
+// Route to render promotion status page
+app.get('/PromStatus', (req, res) => {
+    Promotion.find({}).then(promotions => {
+        res.render('PromStatus', { promotions });
+    }).catch(err => {
+        console.error('Error fetching promotions:', err);
+        res.status(500).send('Failed to fetch promotions');
+    });
+});
 
 // Set Handlebars as the view engine
 app.set('view engine', 'hbs');
@@ -407,6 +422,79 @@ app.get('/employee/:id', async (req, res) => {
     } catch (error) {
         console.error('Error fetching employee:', error);
         res.status(500).json({ error: 'Internal server error', details: error });
+    }
+});
+
+app.get('/PromStatus', (req, res) => {
+    res.render('promotions');  // or another view you're using
+});
+
+// Promotion logging (creation)
+app.post('/log-promotion', async (req, res) => {
+    try {
+        const promotion = new Promotion({
+            employee: req.body.employeeId,
+            previousPosition: req.body.previousPosition,
+            newPosition: req.body.newPosition,
+            promotionDate: req.body.promotionDate,
+            status: 'Pending',  // Set status to 'Pending' initially
+        });
+
+        await promotion.save();
+        res.status(201).json({ message: 'Promotion logged successfully!', promotion });
+    } catch (error) {
+        console.error('Error logging promotion:', error);
+        res.status(500).json({ error: 'Failed to log promotion.' });
+    }
+});
+
+// Fetch promotions with status
+app.get('/promotions', async (req, res) => {
+    try {
+        const promotions = await Promotion.find()
+            .populate('employee', 'fullName')  // Ensure 'fullName' is populated
+            .exec();
+
+        // Render the promotions page and pass the promotions data to it
+        res.render('promotions', { promotions }); 
+    } catch (error) {
+        console.error('Error fetching promotions:', error);
+        res.status(500).send('Failed to fetch promotions.');
+    }
+});
+
+// Update promotion status
+app.patch('/promotions/approve/:promotionId', async (req, res) => {
+    try {
+        const promotion = await Promotion.findById(req.params.promotionId);
+        if (!promotion) {
+            return res.status(404).json({ message: 'Promotion not found' });
+        }
+
+        promotion.status = 'Approved'; 
+        await promotion.save();
+        res.status(200).json({ message: 'Promotion approved successfully', promotion });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error approving promotion' });
+    }
+});
+
+app.patch('/update-promotion-status/:promotionId', async (req, res) => {
+    try {
+        const { status } = req.body;
+        const promotion = await Promotion.findById(req.params.promotionId);
+
+        if (!promotion) {
+            return res.status(404).json({ error: 'Promotion not found' });
+        }
+
+        promotion.status = status;
+        await promotion.save();
+        res.status(200).json({ message: 'Promotion status updated successfully', promotion });
+    } catch (error) {
+        console.error('Error updating promotion status:', error);
+        res.status(500).json({ error: 'Failed to update promotion status' });
     }
 });
 

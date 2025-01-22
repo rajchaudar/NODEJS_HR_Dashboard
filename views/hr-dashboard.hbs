@@ -18,6 +18,14 @@
       display: flex;
       flex-direction: column;
     }
+    .promotion-card {
+      margin-left: 70px;
+  background-color: rgba(208, 214, 208, 0.1); 
+  border: 2px solid #3c24d3; 
+  box-shadow: 0 4px 10px rgba(72, 88, 233, 0.5); 
+  border-radius: 12px; 
+  max-width: 400px;
+}
    .header {
   background: #6a6969;
   color: rgb(6, 3, 3);
@@ -47,14 +55,31 @@
     } 
 
     .container {
-      background-color: rgba(255, 255, 255, 0.9); /* White background with transparency */
+      background-color: rgba(255, 255, 255, 0.9); 
       padding: 20px;
+      max-width: 1200px;
       border-radius: 10px;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
       overflow-y: auto;
-      margin-top: 70px; /* Add margin to avoid header overlap */
-      transition: all 0.3s ease; /* Smooth transitions */
+      margin-top: 70px; 
+      transition: all 0.3s ease; 
     }
+
+    .employee-card {
+  background-color: rgba(255, 255, 255, 0.8);  
+  border: 2px solid #3c24d3;       
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 10px;                 
+  /*padding: 20px;  */                             
+  margin-bottom: 20px; 
+  margin-left: 17px;                   
+  transition: all 0.3s ease;                    
+}
+
+.employee-card:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);  /* Larger shadow effect on hover */
+  background-color: rgba(255, 255, 255, 1);   /* Solid background on hover */
+}
     .alert {
       margin-top: 20px;
       transition: opacity 0.5s ease;
@@ -92,7 +117,7 @@
       display: none;
     }
     .scrollable-card {
-      max-height: 300px; /* Adjust height as needed */
+      max-height: 350px; /* Adjust height as needed */
       overflow-y: auto;
       background-color: rgba(222, 17, 17, 0.209);
     }
@@ -139,43 +164,49 @@
       </div>
 
       <div class="col-md-6">
-        <div class="card mb-4">
-          <div class="card-header"
-            style="background-color: rgb(123, 122, 122, 0.513);">
-            <h2>Promotion Tracking</h2>
-          </div>
-          <div class="card-body scrollable-card">
-            <table class="table table-striped">
-              <thead
-                style="background: linear-gradient(to right, #1b0f8dd2, #7a1e1ee2); color: white;">
-                <tr>
-                  <tr>
-                    <th>Employee Name</th>
-                    <th>Previous Position</th>
-                    <th>New Position</th>
-                    <th>Promotion Date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {{#each promotions}}
-                  <tr>
-                    <td>{{this.employee.fullName}}</td>
-                    <td>{{this.previousPosition}}</td>
-                    <td>{{this.newPosition}}</td>
-                    <td>{{this.promotionDate}}</td>
-                  </tr>
-                  {{/each}}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
+  <div class="card mb-4">
+    <div class="card-header" style="background-color: rgb(123, 122, 122, 0.513);">
+      <h2>Promotion Tracking</h2>
+    </div>
+    <div class="card-body scrollable-card">
+      <table class="table table-striped">
+        <thead style="background: linear-gradient(to right, #1b0f8dd2, #7a1e1ee2); color: white;">
+          <tr>
+            <th>Employee Name</th>
+            <th>Previous Position</th>
+            <th>New Position</th>
+            <th>Promotion Date</th>
+            <th>Status</th> <!-- New Column for Status -->
+          </tr>
+        </thead>
+        <tbody>
+          {{#each promotions}}
+          <tr>
+            <td>{{this.employee.fullName}}</td>
+            <td>{{this.previousPosition}}</td>
+            <td>{{this.newPosition}}</td>
+            <td>{{this.promotionDate}}</td>
+            <td>
+              <span 
+                class="badge 
+                {{#if (eq this.status 'Approved')}}badge-success{{/if}} 
+                {{#if (eq this.status 'Pending')}}badge-warning{{/if}} 
+                {{#if (eq this.status 'Rejected')}}badge-danger{{/if}}">
+                {{this.status}}
+              </span>
+            </td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
 
-      <div class="card mb-4">
+      <div class="card mb-4 employee-card">
         <div
           class="card-header d-flex justify-content-between align-items-center"
-          style="background-color: rgba(123, 122, 122, 0.513); ">
+          style="background-color: rgba(123, 122, 122, 0.513);  ">
           <h2>Employees</h2>
           <div class="form-row search-box">
             <div class="col-md-3">
@@ -226,48 +257,44 @@
             </div>
           </div>
 
-          <div class="card mb-4">
-            <div class="card-header"
-              style="background: linear-gradient(to right, #1b0f8dd2, #7a1e1ee2); color: white;">
-              <tr>
-                <h3>Add New Promotion</h3>
-              </div>
-              <div class="card-body">
-                <form id="addPromotionForm" onsubmit="addPromotion(event)">
-                  <div class="form-group">
-                    <label for="promotionEmployee">Select Employee:</label>
-                    <select id="promotionEmployee" class="form-control" required
-                      onchange="fetchCurrentPosition()">
-                      {{#each employees}}
-                      <option value="{{this._id}}">{{this.fullName}}</option>
-                      {{/each}}
-                    </select>
-                  </div>
+          <div class="card mb-4 promotion-card">
+  <div class="card-header"
+    style="background: linear-gradient(to right, #1b0f8dd2, #7a1e1ee2); color: white;">
+    <h3>Add New Promotion</h3>
+  </div>
+  <div class="card-body">
+    <form id="addPromotionForm" onsubmit="addPromotion(event)">
+      <div class="form-group">
+        <label for="promotionEmployee">Select Employee:</label>
+        <select id="promotionEmployee" class="form-control" required
+          onchange="fetchCurrentPosition()">
+          {{#each employees}}
+          <option value="{{this._id}}">{{this.fullName}}</option>
+          {{/each}}
+        </select>
+      </div>
 
-                  <div class="form-group">
-                    <label for="previousPosition">Previous Position:</label>
-                    <input type="text" id="previousPosition"
-                      class="form-control"
-                      placeholder="Previous Position" required readonly />
-                  </div>
+      <div class="form-group">
+        <label for="previousPosition">Previous Position:</label>
+        <input type="text" id="previousPosition" class="form-control"
+          placeholder="Previous Position" required readonly />
+      </div>
 
-                  <div class="form-group">
-                    <label for="newPosition">New Position:</label>
-                    <input type="text" id="newPosition" class="form-control"
-                      placeholder="New Position" required />
-                  </div>
+      <div class="form-group">
+        <label for="newPosition">New Position:</label>
+        <input type="text" id="newPosition" class="form-control"
+          placeholder="New Position" required />
+      </div>
 
-                  <button type="submit" id="submitPromotion"
-                    class="btn btn-primary">Log
-                    Promotion</button>
-                  <div id="loadingSpinner" class="spinner-border text-primary"
-                    role="status">
-                    <span class="sr-only">Loading...</span>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
+      <button type="submit" id="submitPromotion"
+        class="btn btn-primary">Log Promotion</button>
+      <div id="loadingSpinner" class="spinner-border text-primary" role="status">
+        <span class="sr-only">Loading...</span>
+      </div>
+    </form>
+  </div>
+</div>
+
 
           <script>
   document.getElementById('searchInput').addEventListener('input', function () {
