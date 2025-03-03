@@ -347,7 +347,7 @@ app.get('/employee/:id/edit', async (req, res) => {
 
 
 // Parse JSON body
-app.use(express.json());  // Make sure this line is present
+app.use(express.json()); 
 
 app.post('/promotion/create', async (req, res) => {
     const { employeeId, previousPosition, newPosition } = req.body;
@@ -364,7 +364,7 @@ app.post('/promotion/create', async (req, res) => {
             employee: employeeId,
             previousPosition,
             newPosition,
-            promotionDate: new Date(), // Or your desired date logic
+            promotionDate: new Date(), 
         });
 
         await promotion.save(); // Save the promotion to the database
