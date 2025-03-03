@@ -336,7 +336,7 @@
             return 0;
     }
   }
-  $(document).ready(function() {
+$(document).ready(function() {
     $("#employeeTable").DataTable({
         "responsive": true,
         "autoWidth": false,
@@ -348,8 +348,24 @@
             { extend: 'copy', text: 'Copy', exportOptions: { columns: ':not(:last-child)' } },
             { extend: 'csv', text: 'CSV', exportOptions: { columns: ':not(:last-child)' } },
             { extend: 'excel', text: 'Excel', exportOptions: { columns: ':not(:last-child)' } },
-            { extend: 'pdf', text: 'PDF', exportOptions: { columns: ':not(:last-child)' } },
-            { extend: 'print', text: 'Print', exportOptions: { columns: ':not(:last-child)' } }
+            { 
+                extend: 'pdf', 
+                text: 'PDF', 
+                exportOptions: { columns: ':not(:last-child)' },  
+                customize: function(doc) {
+                    doc.content[1].table.widths = ['20%', '20%', '15%', '15%', '10%', '10%', '10%']; 
+                    doc.defaultStyle.fontSize = 10; 
+                    doc.styles.tableHeader.alignment = 'center'; 
+                    doc.styles.tableBodyEven.alignment = 'center'; 
+                    doc.styles.tableBodyOdd.alignment = 'center'; 
+                    var objLayout = {};
+                    objLayout['hLineWidth'] = function(i, node) { return 1; }; // Thicker horizontal border
+                    objLayout['vLineWidth'] = function(i, node) { return 1; }; // Thicker vertical border
+                    objLayout['hLineColor'] = function(i, node) { return '#000'; }; // Black color for horizontal lines
+                    objLayout['vLineColor'] = function(i, node) { return '#000'; }; // Black color for vertical lines
+                    doc.content[1].layout = objLayout;
+                }
+            }
         ]
     }).buttons().container().appendTo('#exportButtons');
 });
