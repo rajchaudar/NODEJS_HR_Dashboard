@@ -10,16 +10,23 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "admin-lte": "^4.0.0-beta3",
     "aws-amplify": "^6.6.7",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.3",
+    "chart.js": "^4.4.8",
+    "datatables.net-bs4": "^2.2.2",
     "dotenv": "^16.4.5",
     "ejs": "^3.1.10",
     "express": "^4.16.4",
     "express-handlebars": "^3.1.0",
     "express-session": "^1.18.0",
     "hbs": "^4.2.0",
-    "mongoose": "^8.6.4"
+    "jquery": "^3.7.1",
+    "moment": "^2.30.1",
+    "mongoose": "^8.6.4",
+    "nodemon": "^3.1.9",
+    "tempusdominus-bootstrap-4": "^5.39.2"
   },
   "devDependencies": {
     "@aws-amplify/backend": "^1.5.1",

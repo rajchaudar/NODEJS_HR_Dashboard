@@ -4,15 +4,22 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Employee List</title>
-    <link
-      rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
-    />
-    <style>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+
+    <!-- DataTables & Buttons Plugin -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+<style>
       body {
         background: url('https://res.cloudinary.com/dc4dywdvb/image/upload/v1727377999/unnamed_f4ciap.jpg') no-repeat center center fixed;
        
@@ -176,7 +183,10 @@
       </a>
     </div>
     <div class="container">
-      <h2>Employee List</h2>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0 mx-auto">Employee List</h2>
+    <button id="exportButtons" class="btn btn-primary"></button>
+</div>
       <div class="form-row search-box">
         <div class="col-md-3">
           <select id="searchType" class="form-control">
@@ -202,7 +212,7 @@
         </div>
       </div>
       <div class="table-responsive">
-        <table class="table table-bordered table-hover">
+        <table id="employeeTable" class="table table-bordered table-hover">
           <thead>
             <tr>
               <th>Full Name</th>
@@ -326,6 +336,23 @@
             return 0;
     }
   }
+  $(document).ready(function() {
+    $("#employeeTable").DataTable({
+        "responsive": true,
+        "autoWidth": false,
+        "paging": true,
+        "ordering": false,
+        "searching": false,
+        "info": false,
+        "buttons": [
+            { extend: 'copy', text: 'Copy', exportOptions: { columns: ':not(:last-child)' } },
+            { extend: 'csv', text: 'CSV', exportOptions: { columns: ':not(:last-child)' } },
+            { extend: 'excel', text: 'Excel', exportOptions: { columns: ':not(:last-child)' } },
+            { extend: 'pdf', text: 'PDF', exportOptions: { columns: ':not(:last-child)' } },
+            { extend: 'print', text: 'Print', exportOptions: { columns: ':not(:last-child)' } }
+        ]
+    }).buttons().container().appendTo('#exportButtons');
+});
 </script>
   </body>
 </html>
