@@ -14,7 +14,8 @@ const connectDB = require('./models/db');
 const router = express.Router();
 const Department = require('./models/department');
 const Promotion = require('./models/Promotion');
-// const handlebars = require('handlebars');
+const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
 connectDB();
 
@@ -57,6 +58,19 @@ app.use(session({
     cookie: { secure: false }
 }));
 
+// Passport.js initialization
+app.use(passport.initialize());
+app.use(passport.session());
+
+const flash = require('connect-flash');
+app.use(flash());
+
+app.use((req, res, next) => {
+    res.locals.success_msg = req.flash('success_msg');
+    res.locals.error_msg = req.flash('error_msg');
+    next();
+});
+
 // Route to render the admin creation form
 app.get('/admin/create', (req, res) => {
     res.render('createAdmin');
@@ -69,17 +83,75 @@ app.post('/admin/create', async (req, res) => {
     try {
         const existingAdmin = await Admin.findOne({ username });
         if (existingAdmin) {
-            return res.render('adminLogin', { error: 'Admin already exists' });
+            return res.render('createAdmin', { error: 'Admin already exists' });
         }
 
-        const admin = new Admin({ username, password });
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const admin = new Admin({ username, password: hashedPassword });
         await admin.save();
-        // console.log('Admin created:', admin);
+
         res.redirect('/admin/login');
     } catch (error) {
         console.error('Error creating admin:', error);
         res.status(500).send('Server Error');
     }
+});
+
+passport.use(new GoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID, 
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: "/auth/google/callback"
+},
+async (accessToken, refreshToken, profile, done) => {
+    try {
+        let admin = await Admin.findOne({ googleId: profile.id });
+
+        if (!admin) {
+            admin = new Admin({
+                username: profile.displayName,
+                googleId: profile.id
+            });
+            await admin.save();
+        }
+
+        return done(null, admin);
+    } catch (error) {
+        return done(error, null);
+    }
+}));
+
+passport.serializeUser((admin, done) => {
+    done(null, admin.id);
+});
+
+passport.deserializeUser(async (id, done) => {
+    try {
+        const admin = await Admin.findById(id);
+        done(null, admin);
+    } catch (error) {
+        done(error, null);
+    }
+});
+
+// Google Authentication Routes
+app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+app.get('/auth/google/callback',
+    passport.authenticate('google', { failureRedirect: '/admin/login' }),
+    (req, res) => {
+        req.session.admin = true;
+        res.redirect('/'); // Redirect to Dashboard
+    }
+);
+
+app.get('/logout', (req, res, next) => {
+    req.logout((err) => {
+        if (err) return next(err);
+        req.session.destroy(() => {
+            res.redirect('/admin/login');
+        });
+    });
 });
 
 // Admin login route (GET)
@@ -89,28 +161,27 @@ app.get('/admin/login', (req, res) => {
 
 // Admin login route (POST)
 app.post('/admin/login', async (req, res) => {
-    const { username, password } = req.body; // Get username and password from the request body
-
+    const { username, password } = req.body;
     try {
-        // Fetch the admin user from the database
         const admin = await Admin.findOne({ username });
-
         if (!admin) {
-            return res.render('adminLogin', { error: 'Invalid credentials' }); // Admin not found
+            req.flash('error_msg', 'Invalid credentials');
+            return res.redirect('/admin/login');
         }
 
-        // Compare entered password with stored hashed password
         const isMatch = await bcrypt.compare(password, admin.password);
-
         if (isMatch) {
-            req.session.admin = true; // Set admin session
-            res.redirect('/'); // Redirect to dashboard after successful login
+            req.session.admin = true;
+            req.flash('success_msg', 'Logged in successfully');
+            res.redirect('/');
         } else {
-            res.render('adminLogin', { error: 'Invalid credentials' }); // Invalid password
+            req.flash('error_msg', 'Invalid credentials');
+            res.redirect('/admin/login');
         }
     } catch (error) {
-        console.error('Error during admin login:', error);
-        res.render('adminLogin', { error: 'Something went wrong, please try again' });
+        console.error('Login error:', error);
+        req.flash('error_msg', 'Something went wrong');
+        res.redirect('/admin/login');
     }
 });
 

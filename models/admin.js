@@ -10,13 +10,19 @@ const adminSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: true
+        required: false  // Password is not required for Google logins
+    },
+    googleId: {
+        type: String,
+        unique: true, // Ensure a user isn't stored multiple times via Google
+        sparse: true  // Allows multiple documents to have a null value for googleId
     }
 });
 
+// Pre-save hook for password hashing
 adminSchema.pre('save', async function (next) {
     try {
-        if (!this.isModified('password')) return next();
+        if (!this.isModified('password') || !this.password) return next();
         const salt = await bcrypt.genSalt(10);
         this.password = await bcrypt.hash(this.password, salt);
         next();
@@ -26,5 +32,4 @@ adminSchema.pre('save', async function (next) {
 });
 
 const Admin = mongoose.model('Admin', adminSchema);
-
 module.exports = Admin;
