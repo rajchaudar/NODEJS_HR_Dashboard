@@ -1,0 +1,94 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <style>
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 0;
+        background: url('https://res.cloudinary.com/dc4dywdvb/image/upload/v1727377999/unnamed_f4ciap.jpg') 
+        no-repeat center center fixed;
+        background-size: cover;
+        height: 100vh;
+      }
+      .overlay {
+        background-color: rgba(0, 0, 0, 0.6);
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+      .container {
+        text-align: center;
+        color: #fff;
+        z-index: 1;
+      }
+      h1 {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 30px;
+        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+      }
+      .btn-group {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+      }
+      .btn-custom {
+        font-size: 1.2rem;
+        padding: 15px 40px;
+        border-radius: 50px;
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+        transition: transform 0.3s ease;
+      }
+      .btn-custom:hover {
+        transform: translateY(-5px);
+      }
+      .btn-success {
+        background-color: #28a745;
+        border: none;
+      }
+      .btn-primary {
+        background-color: #007bff;
+        border: none;
+      }
+      .btn-danger {
+        background-color: #dc3545;
+        border: none;
+      }
+      .footer {
+        margin-top: 50px;
+        font-size: 0.9rem;
+        color: #ccc;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="overlay">
+      <div class="container">
+        <h1>Welcome to the Admin Panel</h1>
+        <div class="btn-group">
+          <a href="/employee" class="btn btn-success btn-custom">+ Create Employee</a>
+          <a href="/employee/list" class="btn btn-primary btn-custom">Employee List</a>
+          <a href="/hr-dashboard" class="btn btn-success btn-custom">Promotion Dashboard</a>
+        </div>
+        <div class="mt-4">
+          <a href="/logout" class="btn btn-danger btn-custom">Logout</a> 
+        </div>
+        <div class="footer">
+          <p>&copy; 2024 Admin Dashboard | All Rights Reserved</p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

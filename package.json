@@ -1,0 +1,45 @@
+{
+  "name": "project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "echo 'Skipping build process for backend-only project.'"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "admin-lte": "^4.0.0-beta3",
+    "bcrypt": "^5.1.1",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.18.3",
+    "chart.js": "^4.4.8",
+    "connect-flash": "^0.1.1",
+    "datatables.net-bs4": "^2.2.2",
+    "dotenv": "^16.4.7",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "express-handlebars": "^3.1.0",
+    "express-session": "^1.18.1",
+    "google-auth-library": "^9.15.1",
+    "hbs": "^4.2.0",
+    "jquery": "^3.7.1",
+    "moment": "^2.30.1",
+    "mongoose": "^8.6.4",
+    "nodemon": "^3.1.9",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "tempusdominus-bootstrap-4": "^5.39.2"
+  },
+  "devDependencies": {
+    "@aws-amplify/backend": "^1.5.1",
+    "@aws-amplify/backend-cli": "^1.3.0",
+    "aws-cdk": "^2.164.1",
+    "aws-cdk-lib": "^2.164.1",
+    "constructs": "^10.4.2",
+    "esbuild": "^0.24.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}

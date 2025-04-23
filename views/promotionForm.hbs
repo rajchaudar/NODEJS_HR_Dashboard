@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}}</title>
+    <link rel="stylesheet" type="text/css" href="/styles.css"><!-- Link your CSS here -->
+</head>
+<body>
+    <header>
+        <h1>{{title}}</h1>
+        <nav>
+            <a href="/">Home</a>
+            <a href="/employee/list">Employee List</a>
+            <a href="/hr-dashboard">HR Dashboard</a>
+            <a href="/admin/logout">Logout</a> 
+        </nav>
+    </header>
+    <main>
+        <form action="/promotion/create" method="POST">
+            <div>
+                <label for="employeeId">Employee ID:</label>
+                <input type="text" id="employeeId" name="employeeId" required>
+            </div>
+            <div>
+                <label for="previousPosition">Previous Position:</label>
+                <input type="text" id="previousPosition" name="previousPosition" required>
+            </div>
+            <div>
+                <label for="newPosition">New Position:</label>
+                <input type="text" id="newPosition" name="newPosition" required>
+            </div>
+            <button type="submit">Create Promotion</button>
+        </form>
+    </main>
+</body>
+</html>

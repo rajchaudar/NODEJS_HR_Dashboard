@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create Admin</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+      #password-strength {
+        height: 5px;
+        width: 100%;
+        margin-top: 5px;
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container mt-5">
+      <h2>Create Admin</h2>
+      {{#if error}}
+        <div class="alert alert-danger">{{error}}</div>
+      {{/if}}
+
+      <!-- Admin Signup Form -->
+      <form id="admin-form" action="/admin/create" method="POST">
+        <div class="form-group">
+          <label for="username">Username:</label>
+          <input type="text" id="username" name="username" class="form-control" required />
+        </div>
+        <div class="form-group">
+          <label for="password">Password:</label>
+          <input type="password" id="password" name="password" class="form-control" required />
+          <div id="password-strength"></div>
+        </div>
+        <button type="submit" class="btn btn-primary">Create Admin</button>
+      </form>
+
+      <!-- Google Sign-In Button -->
+<div class="mt-3">
+  <h5>Or sign up with Google</h5>
+  <a href="/auth/google" class="btn btn-danger">Sign up with Google</a>
+</div>
+
+      <a href="/admin/login" class="mt-3 d-block">Already have an admin? Login here</a>
+    </div>
+
+    <script>
+      function handleCredentialResponse(response) {
+        console.log("Google JWT Token:", response.credential);
+        fetch('/auth/google/callback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: response.credential })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            window.location.href = "/dashboard"; // Redirect on success
+          } else {
+            alert("Google Sign-In Failed");
+          }
+        })
+        .catch(err => console.error("Error:", err));
+      }
+    </script>
+  </body>
+</html>

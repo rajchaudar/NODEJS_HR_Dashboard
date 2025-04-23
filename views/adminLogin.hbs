@@ -1,0 +1,168 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Login</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+      body {
+        background: url('https://res.cloudinary.com/dc4dywdvb/image/upload/v1727377999/unnamed_f4ciap.jpg') 
+        no-repeat center center fixed;
+        background-size: cover;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+      .overlay {
+        background-color: rgba(0, 0, 0, 0.6);
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+      }
+      .login-container {
+        background-color: rgba(255, 255, 255, 0.9);
+        padding: 40px;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        width: 100%;
+        max-width: 400px;
+        z-index: 1;
+        text-align: center;
+      }
+      h1 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 30px;
+        font-weight: 700;
+      }
+      label {
+        font-weight: bold;
+      }
+      .form-control {
+        border-radius: 50px;
+        padding: 15px;
+        font-size: 1rem;
+        margin-bottom: 20px;
+      }
+      .btn-login {
+        background-color: #007bff;
+        border: none;
+        color: white;
+        padding: 12px 30px;
+        border-radius: 50px;
+        width: 100%;
+        font-size: 1.2rem;
+        font-weight: bold;
+      }
+      .btn-login:hover {
+        background-color: #0056b3;
+      }
+      .error-message {
+        color: red;
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      .link-container {
+        text-align: center;
+        margin-top: 20px;
+      }
+      .link-container a {
+        color: #007bff;
+        text-decoration: none;
+      }
+      .link-container a:hover {
+        text-decoration: underline;
+      }
+      .google-signin-container {
+        margin-top: 20px;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="overlay"></div>
+    <div class="login-container">
+      <h1>Admin Login</h1>
+
+      {{#if error}}
+        <p class="error-message">{{error}}</p>
+      {{/if}}
+
+      <form action="/admin/login" method="POST">
+        <div class="form-group">
+          <label for="username">Username:</label>
+          <input
+            type="text"
+            id="username"
+            name="username"
+            class="form-control"
+            required
+            aria-label="Username"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password:</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            class="form-control"
+            required
+            aria-label="Password"
+          />
+          <input type="checkbox" id="showPassword" />
+          <label for="showPassword">Show Password</label>
+        </div>
+
+        <button type="submit" class="btn btn-login">Login</button>
+      </form>
+
+     <div class="google-signin-container">
+  <h5>Or</h5>
+  <a href="/auth/google" class="btn btn-login">Sign in with Google</a>
+</div>
+
+      <div class="link-container">
+        <p>Don't have an account? <a href="/admin/create">Create Admin</a></p>
+      </div>
+    </div>
+
+    <script>
+      // Show password functionality
+      const showPasswordCheckbox = document.getElementById('showPassword');
+      const passwordField = document.getElementById('password');
+      showPasswordCheckbox.addEventListener('change', function () {
+        passwordField.type = this.checked ? 'text' : 'password';
+      });
+
+      // Google OAuth login response handler
+      function handleCredentialResponse(response) {
+        console.log("Google JWT Token:", response.credential);
+        fetch('/auth/google/callback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: response.credential })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            window.location.href = "/"; // Redirect to dashboard after login
+          } else {
+            alert("Google Sign-In Failed");
+          }
+        })
+        .catch(err => console.error("Error:", err));
+      }
+    </script>
+  </body>
+</html>
