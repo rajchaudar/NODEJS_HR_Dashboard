@@ -156,32 +156,36 @@ app.get('/logout', (req, res, next) => {
 
 // Admin login route (GET)
 app.get('/admin/login', (req, res) => {
-    res.render('adminLogin');
+    res.render('adminLogin', {
+        error: req.flash('error_msg'),    // ✅ Matches your template
+        success: req.flash('success_msg')
+    });
 });
 
 // Admin login route (POST)
 app.post('/admin/login', async (req, res) => {
-    const { username, password } = req.body;
+    const { username, password } = req.body; // Get username and password from the request body
+
     try {
+        // Fetch the admin user from the database
         const admin = await Admin.findOne({ username });
+
         if (!admin) {
-            req.flash('error_msg', 'Invalid credentials');
-            return res.redirect('/admin/login');
+            return res.render('adminLogin', { error: 'Admin not found' }); // Admin not found
         }
 
+        // Compare entered password with stored hashed password
         const isMatch = await bcrypt.compare(password, admin.password);
+
         if (isMatch) {
-            req.session.admin = true;
-            req.flash('success_msg', 'Logged in successfully');
-            res.redirect('/');
+            req.session.admin = true; // Set admin session
+            res.redirect('/'); // Redirect to dashboard after successful login
         } else {
-            req.flash('error_msg', 'Invalid credentials');
-            res.redirect('/admin/login');
+            res.render('adminLogin', { error: 'Invalid credentials' }); // Invalid password
         }
     } catch (error) {
-        console.error('Login error:', error);
-        req.flash('error_msg', 'Something went wrong');
-        res.redirect('/admin/login');
+        console.error('Error during admin login:', error);
+        res.render('adminLogin', { error: 'Something went wrong, please try again' });
     }
 });
 

@@ -19,17 +19,5 @@ const adminSchema = new mongoose.Schema({
     }
 });
 
-// Pre-save hook for password hashing
-adminSchema.pre('save', async function (next) {
-    try {
-        if (!this.isModified('password') || !this.password) return next();
-        const salt = await bcrypt.genSalt(10);
-        this.password = await bcrypt.hash(this.password, salt);
-        next();
-    } catch (error) {
-        next(error);
-    }
-});
-
 const Admin = mongoose.model('Admin', adminSchema);
 module.exports = Admin;
